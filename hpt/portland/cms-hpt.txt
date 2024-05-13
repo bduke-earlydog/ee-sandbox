@@ -1,0 +1,5 @@
+location-name: Adventist Health Portland
+source-page-url: https://adventisthealth.org/portland
+mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Portland_V3.aspx
+contact-name: Blackwell, Sheila
+contact-email: BlackwS@ah.org

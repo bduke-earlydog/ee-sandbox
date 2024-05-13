@@ -1,0 +1,673 @@
+{exp:channel:entries
+  channel="listing"
+  require_entry="yes"
+  disable="member_data|pagination"
+}
+{if no_results}
+  {redirect="404"}
+{/if}
+{__header}
+
+
+<section class="header header--bg bg--pattern dark-blue">
+    <div class="container">
+      <div class="header__inner">
+
+        <div class="header__content">
+          <div class="header__copy">
+          <!-- <span class="header__eyebrow">Adventist Health {categories show_group="1"}{if category_name != 'System'}{category_name}{/if}{/categories}</span> -->
+            {if listing_headline != ''}
+            <h1>{listing_headline}</h1>
+            {/if}
+            {if listing_subheadline != ''}
+            <p>{listing_subheadline}</p>
+            {/if}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="copy-image">
+    <div class="container">
+      <div class="copy-image__inner">
+        <div class="copy-image__image">
+          <img src="{listing_intro_image}" alt="Listing">
+        </div>
+        <div class="copy-image__content copy">
+          {listing_intro_copy}
+        </div>
+      </div>
+    </div>
+  </section>
+  <section class="list">
+    <div class="container">
+      <div class="list__header">
+        <h2>{listing_list_headline}</h2>
+      </div>
+      <div class="list__inner">
+      {exp:structure:nav_advanced
+          show_depth="1"
+          start_from="/{segment_1}/{segment_2}"
+
+        }
+          <?php
+          $aServices["{root:title}"] = '{root:page_url}';
+          ?>
+        {/exp:structure:nav_advanced}
+
+        <ul class="list__list">
+          <?php
+          if( is_array($aServices) ) {
+            ksort($aServices);
+            foreach($aServices as $k => $v) {
+              ?>
+              <li class="list__item"><a href="<?=$v?>" class="list__link"><?=$k?><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></a></li>
+              <?php
+            }
+          }
+          ?>
+        </ul>
+
+      </div>
+    </div>
+  </section>
+
+<?php
+// ------------------------------------------
+//  PAGE MODULES
+// ------------------------------------------
+?>
+    {listing_page_modules}
+      {listing_page_modules:global_copy}
+        <section class="copy">
+          <div class="container">
+            <div class="copy__inner">
+              {content}
+            </div>
+          </div>
+        </section>
+      {/listing_page_modules:global_copy}
+      
+      {listing_page_modules:pages_html}
+        {content}
+      {/listing_page_modules:pages_html}
+
+      {listing_page_modules:pages_accordion}
+        <section class="accordion">
+          <div class="container">
+            <div class="accordion__inner js-accordion">
+              {content}
+              <div class="accordion__block">
+                <div class="accordion__title js-open">
+                  <h4>{content:title}</h4>
+                </div>
+                <div class="accordion__content copy">
+                  {content:copy}
+                </div>
+              </div>
+              {/content}
+            </div>
+          </div>
+        </section>
+      {/listing_page_modules:pages_accordion}
+
+      {listing_page_modules:pages_form}
+        {content}
+        <section class="form {if '{content:display_type:value}' =='container'}form--container{/if} {content:background_color:value}">
+          <div class="container">
+            <div class="form__inner">
+              <div class="form__content copy">
+               {content:copy}
+              </div>
+               <?php
+            // ------------------------------------------
+            //  FORM
+            ?>
+          <div class="form__block">
+                  <script src="https://www.google.com/recaptcha/api.js"></script>
+                  <script>
+                     function onSubmit(token) { 
+                        var applicationForm = document.getElementById("form_sf");    
+                        if (applicationForm.checkValidity()) {                    
+                          document.getElementById("form_sf").submit();  
+                          let element = document.querySelector('.ah-submit');
+                          element.classList.add('ah-submit--loading');   
+                          var submitButton = document.getElementById("submit_form"); 
+                          submitButton.disabled = true;          
+                        } 
+                        else {
+                          applicationForm.reportValidity();
+                        }                  
+                     }     
+                 </script>
+                <?php
+                $this_url = $_SERVER['SCRIPT_URI'];
+                if( $_SERVER['QUERY_STRING'] != '') $this_url.= '?'.$_SERVER['QUERY_STRING'];
+                  $aHidden_fields = array(
+                    '<input type="hidden" name="entry_id" value="{entry_id}" />',
+                    // '<input type="hidden" name="marketing" value="'.$_SESSION['lcuc'].'">',
+                    '<input type="hidden" name="formUrl" value="'.$this_url.'" />',
+                    '<input type="hidden" name="csrf_token" value="{csrf_token}">'
+                  );
+                  //  get tactic from url
+                if( isset($_GET['id']) ) {
+                  $tactic = $_GET['id'];
+                  $tactic = filter_var($tactic, FILTER_SANITIZE_STRING);
+                  $aHidden_fields[] = '<input type="hidden" name="tactic" value = "'.$tactic.'"></form>';
+                }
+                else $tactic = '';
+                $sHidden_fields = implode("\n", $aHidden_fields);
+                $states = '{state-select}';
+                $aPlaceholders = array(
+                  '<input type="hidden" name="tactic" value = "">' => '<input type="hidden" name="tactic" value = "'.$tactic.'">',
+                  '<input type="Text" name="mailingState" id="mailingState" placeholder="State" required>' => "$states",
+                  'action="[placeholder for submit action URL]"' => 'action="/scripts/salesforce-process" name="sf" id="form_sf"',
+                  '<input type="Text" name="birthDate" id="birthDate" placeholder="Birthdate" required>' => '<input type="date" name="birthDate" id="birthDate" min="1920-01-01" max="2020-01-01" required>',
+                  '<input type="submit" value="Submit" name="submit_form">' => '<div class="ah-submit"><input type="submit" value="Submit" name="submit_form" id="submit_form" class="g-recaptcha" data-sitekey="6LcllVwpAAAAAKsPv39ta3hJw7DghP9oO4OpEhQ8" data-callback="onSubmit" data-action="submit"></div>',
+                  '</form>' => $sHidden_fields."\n".'</form>'."\n"
+                  );
+                ob_start();
+                ?>
+                {content:form_html}
+                <?php
+                $content = ob_get_contents();
+                ob_end_clean();
+                // $content = str_replace('<br/>', '', $content);
+                foreach( $aPlaceholders as $k => $v ) {
+                  $content = str_replace($k, $v, $content);
+                }
+                echo $content;
+                ob_start();
+                ?>
+                  {content:copy}
+                <?php
+                $content_copy = ob_get_contents();
+                ob_end_clean();
+                $tagname = 'p';
+                $pattern = "#<\s*?$tagname\b[^>]*>(.*?)</$tagname\b[^>]*>#s";
+                preg_match($pattern, $content_copy, $matches);
+                 // echo $matches[0];
+                ?>
+              </div>
+             <?php
+              //  FORM
+              // ------------------------------------------
+              ?>
+            </div>
+          </div>
+        </section>
+        {/content}
+      {/listing_page_modules:pages_form}
+
+      {listing_page_modules:pages_copy_image}
+        {content}
+        <section class="copy-image {if '{content:display_type:value}' =='full'}copy-image--full{/if} {if '{content:image_position:value}' =='right'}copy-image--reverse{/if} {content:background_color:value}">
+          <div class="container">
+            <div class="copy-image__inner">
+              <div class="copy-image__image">
+                <img src="{content:image}" alt="Provider">
+              </div>
+              <div class="copy-image__content copy">
+                {content:copy}
+              </div>
+            </div>
+          </div>
+        </section>
+        {/content}
+      {/listing_page_modules:pages_copy_image}
+
+
+      {listing_page_modules:pages_copy_video}
+        {content}
+        <section class="copy-image {if '{content:video_position:value}' =='left'}copy-image--reverse{/if} {content:background_color:value}">
+          <div class="container">
+            <div class="copy-image__inner">
+              <div class="copy-image__content copy">
+                {content:copy}
+              </div>
+              <div class="copy-image__video">
+                <div class="video__embed">
+                  <iframe src="{content:video_embed}" width="100%" height="100%" frameborder="0" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        {/content}
+      {/listing_page_modules:pages_copy_video}
+
+      {listing_page_modules:pages_cta}
+        {content}
+        <section class="cta cta--center lightest-blue">
+          <div class="container">
+            <div class="cta__inner">
+              <div class="cta__content copy">
+                <h2>{content:headline}</h2>
+                <p>{content:copy}</p>
+                {if content:button_url_optional != ''}
+                <?php
+                  $button_url = '{content:button_url_optional}';
+                  if (str_contains($button_url, 'http')) {
+                    ?>
+                    <a href="{content:button_url_optional}" target="_blank" class="button">{content:button_label}</a>
+                    <?php
+                  }
+                  else {
+                    ?>
+                   <a href="{content:button_url_optional}" class="button">{content:button_label}</a>
+                    <?php
+                  }
+                  ?>
+                
+                {if:elseif '{content:button_label}' != ''}
+                <a href="{content:button_link}" class="button">{content:button_label}</a>
+                {/if}
+              </div>
+            </div>
+          </div>
+        </section>
+        {/content}
+      {/listing_page_modules:pages_cta}
+
+      
+
+
+<?php
+// ------------------------------------------
+//  PAGE MODULES: CARDS - LOCATIONS
+// ------------------------------------------
+?>
+
+
+      {listing_page_modules:pages_cards_locations}
+        {fields}
+          {listing_page_modules:cards_headline}
+            <?php
+            $headline = '{content}';
+            ?>
+          {/listing_page_modules:cards_headline}
+          {listing_page_modules:cards_headline_type}
+            <?php
+            $headline_type = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_headline_type}
+          {listing_page_modules:cards_background_color}
+            <?php
+            $bgc = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_background_color}
+        {/fields}
+      {/listing_page_modules:pages_cards_locations}
+
+      {listing_page_modules:pages_cards_locations}
+        {fields}
+          {if content != ''}
+            <?php
+              if($bgc == 'dark-blue') {
+                ?>
+            <section class="cards cards--grid dark-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-blue') {
+                ?>
+            <section class="cards cards--grid lightest-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-gray') {
+                ?>
+            <section class="cards cards--grid lightest-gray">
+                <?php
+              }
+              else {
+                ?>
+            <section class="cards cards--grid white">
+                <?php
+              }
+              ?>
+              <div class="container">
+                <div class="cards__header">
+                  <?php
+                  if($headline_type == 'h3') {
+                    ?>
+                    <h3><?=$headline?></h3>
+                    <?php
+                  }
+                  else {
+                    ?>
+                    <h2><?=$headline?></h2>
+                    <?php
+                  }
+                  ?>
+                  <a class="text-link" href="/locations/">View all locations<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></a>
+                </div>
+                <div class="cards__inner">
+                {listing_page_modules:cards_locations}
+                  {content}
+                  <a href="/locations/detail/{content:url_title:replace find }/" class="card card--location">
+                    <div class="card__image">
+                      {if '{content:news_image}' != ''}
+                      <img src="{content:news_image}" alt="CTA Image">
+                      {if:else}
+                      <img src="/files/core/placeholders/blog-news.jpg" alt="CTA Image">
+                      {/if}
+                    </div>
+                    <div class="card__content">
+                      <span>Hospital</span>
+                      <span>{content:categories show_group="12"}{category_name}{/content:categories}</span>
+                      <p>{content:locations_street}{if content:locations_suite != ''},{content:locations_suite}{/if}<br>{content:locations_city}, {content:locations_state} {content:locations_zipcode}</p>
+                    </div>
+                  </a>
+                  {/content}
+                {/listing_page_modules:cards_locations}
+                </div>
+              </div>
+            </section>
+          {/if}
+        {/fields}
+      {/listing_page_modules:pages_cards_locations}
+
+
+<?php
+// ------------------------------------------
+//  PAGE MODULES
+// ------------------------------------------
+?>
+
+
+      {listing_page_modules:pages_cards_articles}
+        {fields}
+          {listing_page_modules:cards_headline}
+            <?php
+            $headline = '{content}';
+            ?>
+          {/listing_page_modules:cards_headline}
+          {listing_page_modules:cards_headline_type}
+            <?php
+            $headline_type = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_headline_type}
+          {listing_page_modules:cards_background_color}
+            <?php
+            $bgc = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_background_color}
+        {/fields}
+      {/listing_page_modules:pages_cards_articles}
+
+      {listing_page_modules:pages_cards_articles}
+        {fields}
+          {if content != ''}
+            <?php
+              if($bgc == 'dark-blue') {
+                ?>
+            <section class="cards cards--grid dark-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-blue') {
+                ?>
+            <section class="cards cards--grid lightest-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-gray') {
+                ?>
+            <section class="cards cards--grid lightest-gray">
+                <?php
+              }
+              else {
+                ?>
+            <section class="cards cards--grid white">
+                <?php
+              }
+              ?>
+              <div class="container">
+                <div class="cards__header">
+                  <?php
+                  if($headline_type == 'h3') {
+                    ?>
+                    <h3><?=$headline?></h3>
+                    <?php
+                  }
+                  else {
+                    ?>
+                    <h2><?=$headline?></h2>
+                    <?php
+                  }
+                  ?>
+                </div>
+                <div class="cards__inner">
+                {listing_page_modules:cards_articles}
+                  {content}
+                  <a href="/{content:channel}/{content:news_year}/{content:news_month}/{content:url_title:replace find='/^-/' replace='' regex='yes'}" class="card card--article">
+                    <div class="card__image">
+                      {if '{content:news_image}' != ''}
+                      <img src="{content:news_image}" alt="CTA Image">
+                      {if:else}
+                      <img src="/files/core/placeholders/blog-news.jpg" alt="CTA Image">
+                      {/if}
+                    </div>
+                    <div class="card__content">
+                      <span>Health &amp; Wellness</span>
+                      <h5>{content:news_headline}</h5>
+                      <p>{content:news_publish_date format="%F %d, %Y"}</p>
+                    </div>
+                  </a>
+                  {/content}
+                {/listing_page_modules:cards_articles}
+                </div>
+              </div>
+            </section>
+          {/if}
+        {/fields}
+      {/listing_page_modules:pages_cards_articles}
+
+
+<?php
+// ------------------------------------------
+//  PAGE MODULES: CARDS - CTA
+// ------------------------------------------
+?>
+
+
+      {listing_page_modules:pages_cards_cta}
+        {fields}
+          {listing_page_modules:cards_headline}
+            <?php
+            $headline = '{content}';
+            ?>
+          {/listing_page_modules:cards_headline}
+          {listing_page_modules:cards_headline_type}
+            <?php
+            $headline_type = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_headline_type}
+          {listing_page_modules:cards_background_color}
+            <?php
+            $bgc = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_background_color}
+        {/fields}
+      {/listing_page_modules:pages_cards_cta}
+
+      {listing_page_modules:pages_cards_cta}
+        {fields}
+          {listing_page_modules:cards_cta}
+            <?php
+              if($bgc == 'dark-blue') {
+                ?>
+            <section class="cards cards--grid dark-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-blue') {
+                ?>
+            <section class="cards cards--grid lightest-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-gray') {
+                ?>
+            <section class="cards cards--grid lightest-gray">
+                <?php
+              }
+              else {
+                ?>
+            <section class="cards white">
+                <?php
+              }
+              ?>
+              <div class="container">
+                <div class="cards__header">
+                  <?php
+                  if($headline_type == 'h3') {
+                    ?>
+                    <h3><?=$headline?></h3>
+                    <?php
+                  }
+                  else {
+                    ?>
+                    <h2><?=$headline?></h2>
+                    <?php
+                  }
+                  ?>
+                </div>
+                <div class="cards__inner">
+                {content}
+                {if content:button_url_optional != ''}
+                <?php
+                  $button_url = '{content:button_url_optional}';
+                  if (str_contains($button_url, 'http')) {
+                    ?>
+                     <a class="card card--cta" target="_blank" href="{content:button_url_optional}">
+                    <?php
+                  }
+                  else {
+                    ?>
+                   <a class="card card--cta" href="{content:button_url_optional}">
+                    <?php
+                  }
+                  ?>
+                 
+                {if:else}
+                  <a class="card card--cta" href="{content:button_link_internal}">
+                {/if}
+                    <div class="card__image">
+                      <img src="{content:image}" alt="CTA Image">
+                    </div>
+                    <div class="card__content">
+                      <h5>{content:title}</h5>
+                      <p class="text-link">{content:button_label}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></p>
+                    </div>
+                  </a>
+                {/content}
+                </div>
+              </div>
+            </section>
+          {/listing_page_modules:cards_cta}
+        {/fields}
+      {/listing_page_modules:pages_cards_cta}
+
+
+<?php
+// ------------------------------------------
+//  PAGE MODULES: CARDS - PROFILES
+// ------------------------------------------
+?>
+
+
+      {listing_page_modules:pages_cards_profiles}
+        {fields}
+          {listing_page_modules:cards_headline}
+            <?php
+            $headline = '{content}';
+            ?>
+          {/listing_page_modules:cards_headline}
+          {listing_page_modules:cards_headline_type}
+            <?php
+            $headline_type = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_headline_type}
+          {listing_page_modules:cards_background_color}
+            <?php
+            $bgc = '{content}{item}{/content}';
+            ?>
+          {/listing_page_modules:cards_background_color}
+        {/fields}
+      {/listing_page_modules:pages_cards_profiles}
+
+      {listing_page_modules:pages_cards_profiles}
+        {fields}
+          {listing_page_modules:cards_profiles}
+            <?php
+              if($bgc == 'dark-blue') {
+                ?>
+            <section class="cards cards--grid dark-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-blue') {
+                ?>
+            <section class="cards cards--grid lightest-blue">
+                <?php
+              }
+              elseif($bgc == 'lightest-gray') {
+                ?>
+            <section class="cards cards--grid lightest-gray">
+                <?php
+              }
+              else {
+                ?>
+            <section class="cards white">
+                <?php
+              }
+              ?>
+              <div class="container">
+                <div class="cards__header">
+                  <?php
+                  if($headline_type == 'h3') {
+                    ?>
+                    <h3><?=$headline?></h3>
+                    <?php
+                  }
+                  else {
+                    ?>
+                    <h2><?=$headline?></h2>
+                    <?php
+                  }
+                  ?>
+                </div>
+                <div class="cards__inner">
+                {content}
+                  {if  content:link_url_optional != ''}
+                  <?php
+                  if (str_contains('{content:link_url_optional}', 'http')) {
+                    ?>
+                    <a class="card card--profile" href="{content:link_url_optional}" target="_blank">
+                    <?php
+                  }
+                  else {
+                    ?>
+                    <a class="card card--profile" href="{content:link_url_optional}">
+                    <?php
+                  }
+                  ?> 
+                  {if:else}
+                   <a class="card card--profile" href="{content:link_internal}">
+                  {/if}
+                    <div class="card__image">
+                      <img src="{content:image}" alt="{content:name} Headshot">
+                    </div>
+                    <div class="card__content">
+                      <h5>{content:name}</h5>
+                      <p>{content:position}</p>
+                      <p class="text-link">{content:link_label}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></p>
+                    </div>
+                  </a>
+                {/content}
+                </div>
+              </div>
+            </section>
+          {/listing_page_modules:cards_profiles}
+        {/fields}
+      {/listing_page_modules:pages_cards_profiles}
+
+    {/listing_page_modules}
+
+{_footer}
+{/exp:channel:entries}

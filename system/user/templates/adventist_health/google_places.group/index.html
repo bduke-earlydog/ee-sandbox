@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Places Demo</title>
+  
+</head>
+<body>
+
+
+  <div>
+    <input id="zip_search" placeholder="Enter a location" type="text">
+    <!-- <input type="hidden" id="zip_search" value=""> -->
+  </div>
+
+  <div>
+    <p><strong>Zipcode:</strong> <span id="zip_search"></span></p>
+  </div>
+
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAl6OIUE3Xkj50645nUe8ffp9liTqrK_Gc&libraries=places&callback=initialize" async defer></script>
+  <script>
+    let autocomplete;
+
+    function initialize() {
+      const input = document.getElementById('zip_search');
+      autocomplete = new google.maps.places.Autocomplete(input);
+      autocomplete.addListener('place_changed', onPlaceChanged);
+    }
+
+    function onPlaceChanged() {
+      const place = autocomplete.getPlace();
+      if (!place.geometry) {
+        window.alert("No details available for input: '" + place.name + "'");
+        return;
+      }
+      let postalCode = '';
+      for (const component of place.address_components) {
+        if (component.types.includes('postal_code')) {
+          // zip here
+          postalCode = component.long_name;
+          break;
+        }
+      }
+      if (postalCode) {
+        document.getElementById('zip_search').textContent = postalCode;
+      } else {
+        document.getElementById('zip_search').textContent = 'Postal code not available';
+      }
+    }
+  </script>
+</body>
+</html>

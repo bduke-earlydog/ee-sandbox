@@ -1,0 +1,139 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>{exp:channel:entries
+  channel="nav"
+  entry_id='{embed:this_entry_id}'
+  dynamic="no"
+}
+{if no_results}
+
+{/if}
+<?php
+//	market
+$market_name = '{title}';
+$market_url = '{url_title}';
+
+$_SESSION['site_config']['market_name'] = $market_name;
+$_SESSION['site_config']['market_url'] = $market_url;
+
+//	notifications
+$j = 0;
+?>
+{global_notification}	
+<?php
+	$global_notification[$j]['type'] = '{global_notification:type}';
+	$global_notification[$j]['copy'] = <<<HTML
+'{global_notification:copy}';
+HTML;
+	$j++;
+?>
+{/global_notification}
+<?php
+$_SESSION['site_config']['global_notification'] = serialize($global_notification);
+
+//	header
+$nav_logo_header = '{nav_logo_header}';
+$_SESSION['site_config']['nav_logo_header'] = $nav_logo_header;
+$j = 0;
+?>
+{nav_topnav}	
+<?php
+	$nav_topnav[$j]['link_label'] = '{nav_topnav:link_label:label}';
+	$nav_topnav[$j]['link_url'] = '{nav_topnav:link_url}';
+	$j++;
+?>
+{/nav_topnav}
+<?php
+$_SESSION['site_config']['nav_topnav'] = serialize($nav_topnav);
+
+//	footer
+$nav_logo_footer = '{nav_logo_footer}';
+$nav_address_1 = '{nav_address_1}';
+$nav_address_2 = '{nav_address_2}';
+$nav_city = '{nav_city}';
+$nav_state = '{nav_state}';
+$nav_zip_code = '{nav_zip_code}';
+$nav_phone = '{nav_phone}';
+$_SESSION['site_config']['nav_logo_footer'] = $nav_logo_footer;
+$_SESSION['site_config']['nav_address_1'] = $nav_address_1;
+$_SESSION['site_config']['nav_address_2'] = $nav_address_2;
+$_SESSION['site_config']['nav_city'] = $nav_city;
+$_SESSION['site_config']['nav_state'] = $nav_state;
+$_SESSION['site_config']['nav_zip_code'] = $nav_zip_code;
+$_SESSION['site_config']['nav_phone'] = $nav_phone;
+
+//	social
+$nav_facebook_url = '{nav_facebook_url}';
+$nav_twitter_url = '{nav_twitter_url}';
+$nav_linkedin_url = '{nav_linkedin_url}';
+$nav_instagram_url = '{nav_instagram_url}';
+$_SESSION['site_config']['nav_facebook_url'] = $nav_facebook_url;
+$_SESSION['site_config']['nav_twitter_url'] = $nav_twitter_url;
+$_SESSION['site_config']['nav_linkedin_url'] = $nav_linkedin_url;
+$_SESSION['site_config']['nav_instagram_url'] = $nav_instagram_url;
+
+//	regional
+$nav_market_active = '{nav_market_active}';
+$nav_market_region = '{nav_market_region:label}';
+$nav_market_image = '{nav_market_image}';
+$nav_market_link = '{nav_market_link}';
+$_SESSION['site_config']['nav_market_active'] = $nav_market_active;
+$_SESSION['site_config']['nav_market_region'] = $nav_market_region;
+$_SESSION['site_config']['nav_market_image'] = $nav_market_image;
+$_SESSION['site_config']['nav_market_link'] = $nav_market_link;
+
+// links
+$j = 0;
+?>
+{nav_quick_links}	
+<?php
+	$nav_quick_links[$j]['link_label'] = '{nav_quick_links:link_label}';
+	$nav_quick_links[$j]['link_url'] = '{nav_quick_links:link_url}';
+	$j++;
+?>
+{/nav_quick_links}
+
+<?php
+$_SESSION['site_config']['nav_quick_links'] = serialize($nav_quick_links);
+$j = 0;
+?>
+{nav_helpful_resources}	
+<?php
+	$nav_helpful_resources[$j]['link_label'] = '{nav_helpful_resources:link_label}';
+	$nav_helpful_resources[$j]['link_url'] = '{nav_helpful_resources:link_url}';
+	$j++;
+?>
+{/nav_helpful_resources}
+
+<?php
+$_SESSION['site_config']['nav_helpful_resources'] = serialize($nav_helpful_resources);
+
+?>
+{nav_overrides}	
+<?php
+	$nav_overrides_url = '{nav_overrides:link_url}';
+	// $nav_overrides[$j]['link_label'] = '{nav_overrides:link_label}';
+	if($nav_overrides_url != '')
+		$nav_overrides['{nav_overrides:link_label}'] = '{nav_overrides:link_url}';
+
+?>
+{/nav_overrides}
+<?php
+$_SESSION['site_config']['nav_overrides'] = serialize($nav_overrides);
+?>
+{/exp:channel:entries}
+
+<?php
+// $_SESSION['site_config']['market_name'] = $market_name;
+// $_SESSION['site_config']['market_url'] = $market_url;
+echo $market_name;
+// echo ' - '.$nav_market_region;
+// echo ' - '.$nav_market_image;
+// echo ' - '.$nav_market_link;
+echo ' - {embed:this_entry_id} ';
+echo $market_name. ' 2| ';
+// echo '<pre>';print_r(unserialize($_SESSION['site_config']['nav_overrides']));'</pre>';
+?>
+

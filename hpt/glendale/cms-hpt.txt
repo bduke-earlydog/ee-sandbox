@@ -1,0 +1,5 @@
+location-name: Adventist Health Glendale
+source-page-url: https://adventisthealth.org/glendale
+mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Glendale_V3.aspx
+contact-name: Blackwell, Sheila
+contact-email: BlackwS@ah.org

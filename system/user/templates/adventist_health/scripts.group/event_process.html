@@ -1,0 +1,943 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+/**
+ * EVENT REGISTRATION PROCESSING
+ */
+?>
+{salesforce-functions}
+<?php
+// echo '<pre>';print_r($_SESSION['jot_response']);exit;
+// ------------------------------------------
+//  REFERER CHECK
+// ------------------------------------------
+// $domain_from = parse_url($_SERVER['HTTP_REFERER'], PHP_URL_HOST);
+// $domain_this = $_SERVER['SERVER_NAME'];
+// if( $domain_from != $domain_this or ! isset( $_POST ) ) {
+//     header("Location: /");
+//     exit;
+// }
+
+// ------------------------------------------
+//  Auto-load
+// ------------------------------------------
+require $_SERVER['DOCUMENT_ROOT'].'/thirdparty/vendor/autoload.php';
+
+// echo '<pre>';print_r($_SESSION['reg_form']);exit;
+// echo $_POST['entry_id'];exit;
+// ------------------------------------------
+//  Sanitize and Capture
+// ------------------------------------------
+$FLAG_PAID = 0;
+$table = 'exp_avenu_event_registrations';
+$ipaddress = $_SERVER['REMOTE_ADDR'];
+
+if( isset($_SESSION['reg_form']) ) {
+  $_POST = unserialize($_SESSION['reg_form']);
+}
+if( isset($_SESSION['jot_response']) ) {
+  $jot_response = unserialize($_SESSION['jot_response']);
+  $jot_response = $_SESSION['jot_response'];
+  $FLAG_PAID = 1;
+
+}
+
+foreach( $_POST as $k => $v ) {
+    $$k = filter_var($v, FILTER_SANITIZE_STRING);
+}
+
+//  split day/time
+$aTmp = explode('|', $main_event_day);
+$main_event_day = $aTmp[0];
+$main_event_time = $aTmp[1];
+
+// echo $main_event_day;exit;
+// echo $jot_response;exit;
+// echo '<pre>';print_r($_SESSION['jot_response']);exit;
+// ------------------------------------------
+//  PAYMENT CHECK
+// ------------------------------------------
+if($event_cost and $event_payment and $FLAG_PAID != 1) {
+  $reg_post = serialize($_POST);
+  $_SESSION['reg_form'] = $reg_post;
+
+  $_SESSION['main_event_day'] = $main_event_day;
+  $_SESSION['main_event_time'] = $main_event_time;
+  $_SESSION['main_event_url'] = $events_url;
+// echo $entry_id;exit;
+  header("Location: /events/payment/$entry_id/payment");
+  exit;
+}
+
+$data = array(
+    'title' => $page_title,
+    'market' => $market,
+    'entry_id' => (int) $entry_id,
+    'event_type' => $event_type,
+    'event_capacity' => "$event_capacity",
+    'event_title' => $event_title,
+    'event_description' => "",  
+    'event_venue' => $event_venue,
+    'event_address' => "$event_address",
+    'event_address2' => "$event_address2",
+    'event_city' => "$event_city",
+    'event_state' => "$event_state",
+    'event_zipcode' => "$event_zipcode",
+    'event_directions_url' => "$event_directions_url",
+    'event_details_optional_text' => "$event_details_optional_text",
+    'event_day' => "$main_event_day",
+    'event_time' => "$main_event_time", 
+    'event_url' => "$event_url",    
+    'event_cost' => "$event_cost",    
+    'event_payment' => "$event_payment",
+
+    'full_name' => $full_name,
+    'email' => $email,
+    'phone' => $phone,
+    'address' => $address,
+    'city' => $city,
+
+    'state' => $state,
+    'zipcode' => $zipcode,
+    'date_created' => date("Y-m-d H:i:s", time()),
+    'user_ip' => $ipaddress,
+    'jot_response' => "$jot_response"
+);
+// echo '<pre>';print_r($data);exit;
+ee()->db->insert($table, $data);
+$uid = ee()->db->insert_id();
+// echo $event_email;exit;
+$_SESSION['main_event_day'] = $main_event_day;
+$_SESSION['main_event_time'] = $main_event_time;
+$_SESSION['main_event_url'] = $events_url;
+
+if( $event_email != 1 ) {
+  // ------------------------------------------
+  //  To Thank you page
+  // ------------------------------------------
+  // echo 'stop';exit;
+  unset($_SESSION['reg_form']);
+  unset($_SESSION['jot_response']);
+  // setcookie('reg_form', time() - 3600);
+  header("Location: /events/thank-you/$entry_id");
+  exit;
+}
+
+// ------------------------------------------
+//  Get SG key
+// ------------------------------------------
+ee()->db->where('key', 'smtp_password');
+$results = ee()->db->get("exp_config");
+foreach( $results->result() as $row) {  
+  $SG_KEY = $row->value;
+
+}
+
+
+
+  // //  get and update email template
+  // $email_template = SITE_URL."emails/index/";
+  // $body = url_get_contents( $email_template );
+
+// echo 'to email';exit;
+// ------------------------------------------
+//  EMAIL TEMPLATE
+// ------------------------------------------
+ob_start();
+?>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Adventist Health</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+  </xml>
+  <![endif]-->
+  <style>
+    :root {
+      color-scheme: light;
+      supported-color-schemes: light;
+    }
+    html,
+    body {
+      width: 100% !important;
+      height: 100% !important;
+      padding: 0 !important;
+      margin: 0 auto !important;
+    }
+    * {
+      -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+    }
+    div[style*="margin: 16px 0"] {
+      margin: 0 !important;
+    }
+    #MessageViewBody, #MessageWebViewDiv{
+      width: 100% !important;
+    }
+    table,
+    td {
+      mso-table-lspace: 0pt !important;
+      mso-table-rspace: 0pt !important;
+    }
+    th {
+      font-weight: normal;
+    }
+    table {
+      table-layout: fixed !important;
+      border-spacing: 0 !important;
+      border-collapse: collapse !important;
+      margin: 0 auto !important;
+    }
+    a {
+      text-decoration: none;
+    }
+    a[x-apple-data-detectors],
+    .unstyle-auto-detected-links a,
+    .aBn {
+      font-family: inherit !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+      text-decoration: none !important;
+      color: inherit !important;
+      cursor: default !important;
+      border-bottom: 0 !important;
+    }
+    .im {
+      color: inherit !important;
+    }
+    .a6S {
+      display: none !important;
+      opacity: 0.01 !important;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+    img.g-img + div {
+      display: none !important;
+    }
+    @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+      u ~ div .email-container {
+        min-width: 320px !important;
+      }
+    }
+    @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+      u ~ div .email-container {
+        min-width: 375px !important;
+      }
+    }
+    @media only screen and (min-device-width: 414px) {
+      u ~ div .email-container {
+        min-width: 414px !important;
+      }
+    }
+  </style>
+  <style> 
+    .no-table-margin table {
+      margin: 0 !important;
+    }
+    .button-td,
+    .button-a {
+      transition: all 100ms ease-in;
+    }
+    .button-td-primary:hover,
+    .button-a-primary:hover {
+      background: #ce3c00 !important;
+      border-color: #ce3c00 !important;
+    }
+    u + .body .glist { 
+      margin-left: 0 !important; 
+    }
+    @media screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+        margin: auto !important;
+      }
+      .email-container h1 {
+        font-size: 24px !important;
+        line-height: 30px !important;
+      }
+      .email-container h2 {
+        font-size: 18px !important;
+        line-height: 22px !important;
+      }
+      .stack-column,
+      .stack-column-center {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        direction: ltr !important;
+      }
+      .stack-column-center {
+        text-align: center !important;
+      }
+      .center-on-narrow {
+        display: block !important;
+        float: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center !important;
+      }
+      table.center-on-narrow {
+        display: inline-block !important;
+      }
+      img.m-img {
+        max-width: 100% !important;
+      }
+      .no-table-margin table {
+        margin: 0 auto !important;
+      }
+      u + .body .glist {
+        margin-left: 15px !important;
+      }
+    }
+  </style>
+</head>
+
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f7f7f7;">
+  <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #f7f7f7;">
+    <!--[if mso | IE]>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f7f7f7;">
+    <tr>
+    <td>
+    <![endif]-->
+      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: auto;" class="email-container">
+
+        <tr>
+          <td style="padding: 20px 30px; background-color: #ffffff; border-bottom: 1px solid #dbdbdb;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <img border="0" src="{site_url}files/core/logos/ah-global.svg" width="200" height="" style="width: 100%; max-width: 200px; height: auto; background: #ffffff; font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f; display: block;" alt="Adventist Health Logo" class="g-img">
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 40px 30px 0;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <h1 style="margin: 0 0 30px; font-family: Arial, serif; font-size: 28px; font-weight: bold; line-height: 34px; color: #003764;">[[EE_HEADLINE]]</h1>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 0 30px;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td style="font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f;">
+                  <p style="margin-top: 0;">You have been successfully registered for <strong>[[EE_TITLE]]</strong>.</p>
+                </td>
+              </tr>
+              <?php
+                if($event_email_copy != '') {
+                  ?>
+                  <tr>
+                <td style="font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f;">
+                  <p style="margin-top: 0;">[[EE_COPY]]</p>
+                </td>
+              </tr>
+                  <?php
+                }
+              ?>
+              
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 20px 30px 0;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <h2 style="margin: 0 0 20px; font-family: Arial, serif; font-size: 20px; line-height: 25px; font-weight: bold; color: #003764;">Event Information</h2>
+                </td>
+              </tr>
+              <?php
+              if($main_event_day != '') {
+                ?>
+              <tr>
+                <td style="padding-bottom: 8px;">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td width="18" valign="top" style="padding: 3px 0 0;">
+                        <img border="0" src="{site_url}files/core/emails/icons/date.svg" width="18" height="18" style="display: block;" alt="Date Icon">
+                      </td>
+                      <td width="15">&nbsp;</td>
+                      <td valign="top" style="font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 26px; color: #4f4f4f;">
+                        <p style="margin: 0;">[[EE_DAY]]</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding-bottom: 8px;">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td width="18" valign="top" style="padding: 3px 0 0;">
+                        <img border="0" src="{site_url}files/core/emails/icons/time.svg" width="18" height="18" style="display: block;" alt="Time Icon">
+                      </td>
+                      <td width="15">&nbsp;</td>
+                      <td valign="top" style="font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 26px; color: #4f4f4f;">
+                        <p style="margin: 0;">[[EE_TIME]]</p>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+                <?php
+              }
+             ?>
+
+              <?php
+           
+              if( $location_toggle == 1) {
+                  ?>
+                  <tr>
+                <td style="padding-bottom: 8px;">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td width="18" valign="top" style="padding: 3px 0 0;">
+                        <img border="0" src="{site_url}files/core/emails/icons/location.svg" width="18" height="18" style="display: block;" alt="Location Icon">
+                      </td>
+                      <td width="15">&nbsp;</td>
+                      <td valign="top" style="font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; line-height: 26px; color: #4f4f4f;">
+                        <?php
+                        if($event_venue != '') {
+                          ?>
+                          <p style="margin: 0;">[[EE_VENUE]]</p>
+                          <?php
+                        }
+                        ?>
+                         <?php
+                        if($event_address != '') {
+                          ?>
+                           <p style="margin: 0;">[[EE_ADDRESS]], [[EE_ADDRESS2]] [[EE_CITY]], [[EE_STATE]] [[EE_ZIPCODE]]</p>
+                          <?php
+                        }
+                        ?> 
+                       
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+                  <?php
+              }
+              ?>
+            </table>
+          </td>
+        </tr>
+        <?php
+        if( $location_toggle == 1 and $event_directions_url !='') {
+          ?>
+        <tr>
+          <td style="background-color: #ffffff; padding: 20px 30px 0;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <table align="left" role="presentation" cellspacing="0" cellpadding="0" border="0">
+                    <tr>
+                      <td class="button-td button-td-primary" style="border-radius: 50px; background: #00a0dd;">
+                        <a class="button-a button-a-primary" href="[[EE_DIRECTIONS]]" target="_blank" style="padding: 8px 30px; background: #00a0dd; border: 1px solid #00a0dd; border-radius: 50px; font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; text-decoration: none; color: #ffffff; display: block;"><b>Get directions</b></a>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <?php
+        }
+        ?>
+        
+        <tr>
+          <td style="background-color: #ffffff; padding: 20px 30px 80px;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 30px; background-color: #003764;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <th valign="middle" width="50%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td style="padding: 0 0 20px; text-align: left;" class="center-on-narrow">
+                        <a href="https://www.adventisthealth.org/" target="_blank"><img src="{site_url}files/core/logos/ah-global-white.svg" width="170" height="" alt="Adventist Health Logo" border="0" style="width: 100%; max-width: 170px; height: auto; background: #003764; font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #ffffff;"></a>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+                <th valign="middle" width="50%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td width="150" align="right" style="padding: 0 0 20px;" class="no-table-margin">
+                        <table border="0" width="150" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td width="30" valign="middle">
+                              <a href="https://www.facebook.com/AdventistHealth" target="_blank"><img border="0" src="{site_url}files/core/emails/social/facebook.png" width="30" height="30" style="display: block;" alt="Facebook Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://twitter.com/AdventistHealth" target="_blank"><img border="0" src="{site_url}files/core/emails/social/twitter.png" width="30" height="30" style="display: block;" alt="Twitter Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://www.linkedin.com/company/10743/" target="_blank"><img border="0" src="{site_url}files/core/emails/social/linkedin.png" width="30" height="30" style="display: block;" alt="LinkedIn Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://www.instagram.com/adventisthealth/" target="_blank"><img border="0" src="{site_url}files/core/emails/social/instagram.png" width="30" height="30" style="display: block;" alt="Instagram Icon"></a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+              </tr>
+            </table>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <th valign="top" width="100%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td style="padding: 20px 0 0; border-top: 1px solid #ccfeff; font-family: Arial, sans-serif; font-size: 14px; line-height: 24px; color: #ffffff; text-align: left;" class="center-on-narrow">
+                        <p style="margin: 0;">ONE Adventist Health Way, Roseville, CA 95661</p>
+                        <p style="margin: 0;">&copy;<?=date("Y",time())?> - Adventist Health</p>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+    <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+  </center>
+</body>
+</html>
+<?php
+$body = ob_get_contents();
+ob_end_clean();
+
+// END OF EMAIL TEMPLATE
+
+// ------------------------------------------
+//  Prep and Send
+// ------------------------------------------
+    // $email_template = SITE_URL."emails/event_registration_email_temp/";
+    // $body = url_get_contents( $email_template );
+    if($event_email_headline != '')
+      $body = str_replace('[[EE_HEADLINE]]',$event_email_headline,$body);
+    else
+      $body = str_replace('[[EE_HEADLINE]]','You are confirmed for the event!',$body);
+
+
+    $body = str_replace('[[EE_COPY]]',$event_email_copy,$body);
+    $body = str_replace('[[EE_TITLE]]',$event_title,$body);
+    $body = str_replace('[[EE_LINK]]',$event_url,$body);
+     // echo  date_format($main_event_day,"F j, Y");exit;
+    $body = str_replace('[[EE_DAY]]',$main_event_day,$body);
+    $body = str_replace('[[EE_TIME]]',$main_event_time,$body);
+    $body = str_replace('[[EE_DIRECTIONS]]',$event_directions_url,$body);
+    $body = str_replace('[[EE_LINK]]',$event_url,$body);
+    $body = str_replace('[[EE_VENUE]]',$event_venue,$body);
+    $body = str_replace('[[EE_ADDRESS]]',$event_address,$body);
+    if($event_address2 != '') $event_address2 = '<br>'.$event_address2.',<br>';
+    $body = str_replace('[[EE_ADDRESS2]]',$event_address2,$body);
+    $body = str_replace('[[EE_CITY]]',$event_city,$body);
+    $body = str_replace('[[EE_STATE]]',$event_state,$body);
+    $body = str_replace('[[EE_ZIPCODE]]',$event_zipcode,$body);
+
+// echo $location_toggle;exit;
+// echo $body;exit;
+  // ------------------------------------------
+  //  SENDGRID
+  // ------------------------------------------
+    $SG = new \SendGrid\Mail\Mail();
+    $SG->setFrom('system@adventisthealthcms.org', 'Adventist Health');    
+    $SG->setSubject('Your Registration Email'); 
+    $SG->addContent("text/html", $body);     
+    $SG->addTo($email);
+    $sendgrid = new \SendGrid($SG_KEY);
+    try {
+        $response = $sendgrid->send($SG);            
+        print $response->statusCode() . "\n";
+        print_r($response->headers());
+        print $response->body() . "\n";
+    } 
+    catch (Exception $e) {
+        echo 'Caught exception: '. $e->getMessage() ."\n";
+    }
+
+  // ------------------------------------------
+  //  Optional Admin recipients
+  // ------------------------------------------
+  if( isset($events_event_admins) and $events_event_admins != '') {
+    
+      // $admin_email_template = SITE_URL."emails/admin";
+      // $admin_body = url_get_contents( $admin_email_templates );
+ob_start();
+?>
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="format-detection" content="telephone=no,address=no,email=no,date=no,url=no">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <title>Adventist Health</title>
+  <!--[if gte mso 9]>
+  <xml>
+    <o:OfficeDocumentSettings>
+      <o:AllowPNG/>
+      <o:PixelsPerInch>96</o:PixelsPerInch>
+    </o:OfficeDocumentSettings>
+  </xml>
+  <![endif]-->
+  <style>
+    :root {
+      color-scheme: light;
+      supported-color-schemes: light;
+    }
+    html,
+    body {
+      width: 100% !important;
+      height: 100% !important;
+      padding: 0 !important;
+      margin: 0 auto !important;
+    }
+    * {
+      -webkit-text-size-adjust: 100%;
+          -ms-text-size-adjust: 100%;
+    }
+    div[style*="margin: 16px 0"] {
+      margin: 0 !important;
+    }
+    #MessageViewBody, #MessageWebViewDiv{
+      width: 100% !important;
+    }
+    table,
+    td {
+      mso-table-lspace: 0pt !important;
+      mso-table-rspace: 0pt !important;
+    }
+    th {
+      font-weight: normal;
+    }
+    table {
+      table-layout: fixed !important;
+      border-spacing: 0 !important;
+      border-collapse: collapse !important;
+      margin: 0 auto !important;
+    }
+    a {
+      text-decoration: none;
+    }
+    a[x-apple-data-detectors],
+    .unstyle-auto-detected-links a,
+    .aBn {
+      font-family: inherit !important;
+      font-size: inherit !important;
+      font-weight: inherit !important;
+      line-height: inherit !important;
+      text-decoration: none !important;
+      color: inherit !important;
+      cursor: default !important;
+      border-bottom: 0 !important;
+    }
+    .im {
+      color: inherit !important;
+    }
+    .a6S {
+      display: none !important;
+      opacity: 0.01 !important;
+    }
+    img {
+      -ms-interpolation-mode: bicubic;
+    }
+    img.g-img + div {
+      display: none !important;
+    }
+    @media only screen and (min-device-width: 320px) and (max-device-width: 374px) {
+      u ~ div .email-container {
+        min-width: 320px !important;
+      }
+    }
+    @media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+      u ~ div .email-container {
+        min-width: 375px !important;
+      }
+    }
+    @media only screen and (min-device-width: 414px) {
+      u ~ div .email-container {
+        min-width: 414px !important;
+      }
+    }
+  </style>
+  <style> 
+    .no-table-margin table {
+      margin: 0 !important;
+    }
+    .button-td,
+    .button-a {
+      transition: all 100ms ease-in;
+    }
+    .button-td-primary:hover,
+    .button-a-primary:hover {
+      background: #ce3c00 !important;
+      border-color: #ce3c00 !important;
+    }
+    u + .body .glist { 
+      margin-left: 0 !important; 
+    }
+    @media screen and (max-width: 600px) {
+      .email-container {
+        width: 100% !important;
+        margin: auto !important;
+      }
+      .email-container h1 {
+        font-size: 24px !important;
+        line-height: 30px !important;
+      }
+      .email-container h2 {
+        font-size: 18px !important;
+        line-height: 22px !important;
+      }
+      .stack-column,
+      .stack-column-center {
+        display: block !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        direction: ltr !important;
+      }
+      .stack-column-center {
+        text-align: center !important;
+      }
+      .center-on-narrow {
+        display: block !important;
+        float: none !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        text-align: center !important;
+      }
+      table.center-on-narrow {
+        display: inline-block !important;
+      }
+      img.m-img {
+        max-width: 100% !important;
+      }
+      .no-table-margin table {
+        margin: 0 auto !important;
+      }
+      u + .body .glist {
+        margin-left: 15px !important;
+      }
+    }
+  </style>
+</head>
+
+<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f7f7f7;">
+  <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #f7f7f7;">
+    <!--[if mso | IE]>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f7f7f7;">
+    <tr>
+    <td>
+    <![endif]-->
+      <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="margin: auto;" class="email-container">
+
+        <tr>
+          <td style="padding: 20px 30px; background-color: #ffffff; border-bottom: 1px solid #dbdbdb;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <img border="0" src="{site_url}files/core/logos/ah-global.svg" width="200" height="" style="width: 100%; max-width: 200px; height: auto; background: #ffffff; font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f; display: block;" alt="Adventist Health Logo" class="g-img">
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 40px 30px 0;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td>
+                  <h1 style="margin: 0 0 30px; font-family: Arial, serif; font-size: 28px; font-weight: bold; line-height: 34px; color: #003764;">New event registration!</h1>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 0 30px;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <td style="font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f;">
+                  <p style="margin-top: 0;">You have a new registration for the following event:</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #4f4f4f;">
+                  <p style="margin-top: 0;"><a style="color: #00a0dd; text-decoration: underline;" href="[[EE_EVENT_URL]]" target="_blank"><strong>[[EE_TITLE]]</strong></a><br>Event ID: [[EE_ENTRYID]]<br></p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        
+
+        
+
+        <tr>
+          <td style="background-color: #ffffff; padding: 20px 30px 80px;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding: 30px; background-color: #003764;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <th valign="middle" width="50%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td style="padding: 0 0 20px; text-align: left;" class="center-on-narrow">
+                        <a href="https://www.adventisthealth.org/" target="_blank"><img src="{site_url}files/core/logos/ah-global-white.svg" width="170" height="" alt="Adventist Health Logo" border="0" style="width: 100%; max-width: 170px; height: auto; background: #003764; font-family: Arial, sans-serif; font-size: 16px; line-height: 26px; color: #ffffff;"></a>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+                <th valign="middle" width="50%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td width="150" align="right" style="padding: 0 0 20px;" class="no-table-margin">
+                        <table border="0" width="150" cellspacing="0" cellpadding="0">
+                          <tr>
+                            <td width="30" valign="middle">
+                              <a href="https://www.facebook.com/AdventistHealth" target="_blank"><img border="0" src="{site_url}files/core/emails/social/facebook.png" width="30" height="30" style="display: block;" alt="Facebook Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://twitter.com/AdventistHealth" target="_blank"><img border="0" src="{site_url}files/core/emails/social/twitter.png" width="30" height="30" style="display: block;" alt="Twitter Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://www.linkedin.com/company/10743/" target="_blank"><img border="0" src="{site_url}files/core/emails/social/linkedin.png" width="30" height="30" style="display: block;" alt="LinkedIn Icon"></a>
+                            </td>
+                            <td width="10">&nbsp;</td>
+                            <td width="30" valign="middle">
+                              <a href="https://www.instagram.com/adventisthealth/" target="_blank"><img border="0" src="{site_url}files/core/emails/social/instagram.png" width="30" height="30" style="display: block;" alt="Instagram Icon"></a>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+              </tr>
+            </table>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+              <tr>
+                <th valign="top" width="100%" class="stack-column-center">
+                  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+                    <tr>
+                      <td style="padding: 20px 0 0; border-top: 1px solid #ccfeff; font-family: Arial, sans-serif; font-size: 14px; line-height: 24px; color: #ffffff; text-align: left;" class="center-on-narrow">
+                        <p style="margin: 0;">ONE Adventist Health Way, Roseville, CA 95661</p>
+                        <p style="margin: 0;">&copy;<?=date("Y",time())?> - Adventist Health</p>
+                      </td>
+                    </tr>
+                  </table>
+                </th>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+      </table>
+    <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+  </center>
+</body>
+</html>
+
+<?php
+$admin_body = ob_get_contents();
+ob_end_clean();
+
+      $admin_body = str_replace('[[EE_TITLE]]',$event_title,$admin_body);
+      $admin_body = str_replace('[[EE_ENTRYID]]',$entry_id,$admin_body);
+      $admin_body = str_replace('[[EE_EVENT_URL]]',$events_url,$admin_body);
+
+      $SG = new \SendGrid\Mail\Mail();
+      $SG->setFrom('system@adventisthealthcms.org', 'Adventist Health');    
+      $SG->setSubject('New Event Registration'); 
+      $SG->addContent("text/html", $admin_body); 
+      $aAdminEmails = explode(',',$events_event_admins);
+      foreach($aAdminEmails as $e ) {
+        $SG->addTo(trim($e));
+      }    
+      // $SG->addTo($email);
+      $sendgrid = new \SendGrid($SG_KEY);
+      try {
+          $response = $sendgrid->send($SG);            
+          print $response->statusCode() . "\n";
+          print_r($response->headers());
+          print $response->body() . "\n";
+      } 
+      catch (Exception $e) {
+          echo 'Caught exception: '. $e->getMessage() ."\n";
+      }
+  }
+
+  // ------------------------------------------
+  //  To Thank you page
+  // ------------------------------------------
+    unset($_SESSION['reg_form']);
+    unset($_SESSION['jot_response']);
+    // setcookie('reg_form', time() - 3600);
+    // echo 'stop';exit;
+    header("Location: /events/thank-you/$entry_id/success/");
+    exit;
+
+//  eof
+
+?>

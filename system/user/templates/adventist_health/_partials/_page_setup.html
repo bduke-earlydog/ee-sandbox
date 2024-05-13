@@ -1,0 +1,58 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
+{if current_path *= 'search/results' && last_segment == 'results'}
+	{redirect='/{if segment_1} != 'search'}{segment_1}/{/if}search/'}
+{/if}
+<?php
+
+// ------------------------------------------
+//  Get entry id + from market short name
+// ------------------------------------------
+$jsonData = null; 
+$market = '{segment_1}';
+ee()->db->where('url_title', $market);
+ee()->db->where('channel_id', 14);
+$results = ee()->db->get("exp_channel_titles");
+if ( $results->num_rows() == 0 ) {
+  $market = 'system';
+  $market_name = 'Adventist Health';
+  ee()->db->where('url_title', $market);
+  ee()->db->where('channel_id', 14);
+  $results = ee()->db->get("exp_channel_titles");
+}   
+foreach( $results->result() as $row) {  
+	$entry_id = $row->entry_id;
+	$market_name = $row->title;
+	$market_url = $market;
+	if($market == 'system') $market_url = '';
+}
+
+// ------------------------------------------
+//  Get json w/cache check
+// ------------------------------------------
+$sessionKey = "json_response_{$entry_id}";
+
+if (isset($_SESSION[$sessionKey])) {
+  // echo 'EXISTING - no server call made';
+  $jsonData = json_decode($_SESSION[$sessionKey], true);
+} 
+else {
+    // echo 'Data is not in session, fetch from the data table';
+    ee()->db->where('market', $market_url);
+    $results = ee()->db->get("exp_avenu_config");
+    foreach( $results->result() as $row) {  
+      $data = $row->data;
+      $jsonData = json_decode($data, true);
+      $_SESSION[$sessionKey] = $data;
+    }
+}
+
+// Use $jsonData as needed
+// echo '<pre>' . print_r($jsonData, true) . '</pre>';
+
+?>
+
+

@@ -1,0 +1,35 @@
+{exp:structure:nav_advanced 
+  show_depth="2" 
+  start_from="{ah-nav:side_nav_dynamic_start_from}"
+  show_overview="no"
+  cache="yes" refresh="1440"
+  named_nav="Side"
+}
+  {if root:count == 1}
+  <div class="sidenav js-sidenav">
+    <nav class="sidenav__nav">
+      <div class="sidenav__header">
+        <a class="sidenav__header-link" href="{root:page_url}">{root:title}</a>
+      </div>
+      <ul class="sidenav__list">
+  {/if}
+  {if root:count > 1}
+        <li class="sidenav__item {if root:has_children}item--sub{/if} {if root:active && root:has_children}item--open{/if} {if root:active}item--active{/if}"><a class="sidenav__link" href="{root:page_url}">{root:title}</a>
+          {if root:has_children}
+          <ul class="sidenav__sub-list">
+            {root:children}               
+            <li class="sidenav__sub-item {if child:active}sub-item--active{/if}"><a class="sidenav__sub-link" href="{child:page_url}">{child:title}</a></li>            
+            {/root:children}
+              </ul>
+          {/if}
+        </li>
+  {/if}
+  {if root:count == root:total_results}
+      </ul>
+    </nav>
+    {if current_path *= 'services/' }
+    <button class="text-link js-sidenav-open">Show more services</button>
+    {/if}
+  </div>
+  {/if}
+{/exp:structure:nav_advanced}

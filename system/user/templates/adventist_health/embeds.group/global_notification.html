@@ -1,0 +1,34 @@
+{exp:ah_utils:market_notifications market="{embed:market_url}"}
+    {if type == 'alert'}
+        <div class="notification notification--alert js-notification ">
+            <div class="container">
+                <div class="notification__inner">
+                    <div class="notification__icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 1a15 15 0 1 0 15 15A15.005 15.005 0 0 0 16 1zm0 24a2 2 0 1 1 2-2 2.006 2.006 0 0 1-2 2zm2.29-15.51-.67 8.02a1.626 1.626 0 0 1-3.24 0l-.67-8.02a2.3 2.3 0 1 1 4.59-.19 1.21 1.21 0 0 1-.01.19z"/></svg>
+                    </div>
+                    <div class="notification__content">
+                        {copy}
+                    </div>
+                    <div class="notification__close js-notification-close" data-gid="{embed:market_url}-a" data-ntype="global"></div>
+                </div>
+            </div>
+        </div>
+    {if:elseif type == 'general'}
+        <div class="notification js-notification">
+            <div class="container">
+                <div class="notification__inner">
+                    <div class="notification__icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M21.379 16.913A6.698 6.698 0 0 1 19 11.788V9c0-3.519-2.614-6.432-6-6.92V1a1 1 0 1 0-2 0v1.08C7.613 2.568 5 5.481 5 9v2.788a6.705 6.705 0 0 1-2.388 5.133A1.752 1.752 0 0 0 3.75 20h16.5c.965 0 1.75-.785 1.75-1.75 0-.512-.223-.996-.621-1.337zM12 24a3.756 3.756 0 0 0 3.674-3H8.326A3.756 3.756 0 0 0 12 24z"/></svg>
+                    </div>
+                    <div class="notification__content">
+                        {copy}
+                    </div>
+                    <div class="notification__close js-notification-close" data-gid="{embed:market_url}-g" data-ntype="global"></div>
+                </div>
+            </div>
+        </div>
+    {/if}
+
+{/exp:ah_utils:market_notifications}
+
+

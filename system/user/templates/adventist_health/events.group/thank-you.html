@@ -1,0 +1,110 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+// echo $_SESSION['main_event_day'];exit;
+?>
+{if segment_3 == ''}
+  {redirect='events'}
+{/if}
+{exp:channel:entries 
+  channel="events"
+  require_entry="no"
+  entry_id="{segment_3}"
+  dynamic="no"
+  limit="1"
+}
+{if no_results}
+nope
+{/if}
+{__header}
+
+<section class="header header--detail lightest-blue">
+      <div class="container">
+        <div class="header__inner">
+          <div class="header__content">
+            <div class="header__button">
+              <?php
+              $main_event_url = $_SESSION['main_event_url'];
+              ?>
+              <a href="<?=$main_event_url?>" class="button button--icon button--outline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M182.62 9.38c12.51 12.51 12.49 32.76 0 45.25l-73.3 73.35h370.7c17.69 0 32 14.31 32 32s-14.31 32-32 32h-370.7l73.3 73.37c12.5 12.5 12.5 32.75 0 45.25s-32.75 12.5-45.25 0L9.38 182.6c-12.5-12.5-12.5-32.75 0-45.25l128-128c12.55-12.47 32.75-12.47 45.25.03Z"/></svg>Event detail</a>
+            </div>
+            <div class="header__copy">
+              <span class="header__eyebrow"><!--Adventist Health-->{categories show_group="1"}{if category_name != 'System'}{category_name}{if:else}Adventist Health{/if}{/categories}</span>
+              <h1>{events_title}</h1>
+              <p>{categories show_group="13" backspace="2"}{category_name}, {/categories}</p>
+<!--               <p>{events_subheadline}</p> -->
+            </div>
+          </div>
+          <div class="header__image">
+             {if '{events_image}' != ''}
+              <img src="{events_image}" alt="Event Image">
+              {if:else}
+              <img src="/files/core/placeholders/event.jpg" alt="Event Image">
+             {/if}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="page-content__wrap">
+
+      <aside class="sidebar">
+        <div class="sidebar__inner">
+          <!-- events -->
+          {if events_event_date != '' || events_cost != '' || 1}
+          <div class="sidebar__block block--info">
+            <div class="sidebar__header">
+              <h4>Event Details</h4>
+            </div>
+            <div class="sidebar__content">
+               {if events_cost != ''}
+              <h5>Cost</h5>
+              <p>${events_cost}</p>
+              {/if}
+
+                <h5>Date</h5> 
+                <p><?=$_SESSION['main_event_day']?><br><?=$_SESSION['main_event_time']?></p>
+
+                <p>{events_dates}{events_dates:event_details_optional_text}{/events_dates}</p>
+            </div>
+          </div>
+          {/if}
+
+
+          <!-- location -->
+          {if events_optional_location == 1}
+          <div class="sidebar__block block--location">
+            <div class="sidebar__header">
+              <h4>Event Location</h4>
+            </div>
+            <div class="sidebar__content">
+              {events_location}
+              <h5>{events_location:venue}</h5>
+              <p>{events_location:address}{if events_location:address_2 != ''}<br>{events_location:address_2}{/if}<br>{events_location:city}, {events_location:state} {events_location:zip_code}</p>
+              {if events_location:directions_url != ''}
+              <a class="text-link" href="{events_location:directions_url}" target="_blank">Get directions<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></a>
+              {/if}
+              {/events_location}
+            </div>
+          </div>
+          {/if}
+        </div>
+      </aside>
+
+      <div class="page-content__inner">
+    <section class="copy">
+      <div class="container">
+        <div class="copy__inner">
+          <h2>Thank You</h2>
+          <p>You have successfully been registered for this event.</p>
+        </div>
+      </div>
+    </section>
+   </div>
+    </div>
+
+
+  {_footer}
+{/exp:channel:entries}
+

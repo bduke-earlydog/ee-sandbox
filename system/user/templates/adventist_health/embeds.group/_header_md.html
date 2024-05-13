@@ -1,0 +1,43 @@
+{exp:ah_utils:market_data market="{segment_1}"}
+<div class="page-head__top">
+    <div class="container">
+        <nav class="topnav">
+            <ul class="topnav__list">
+                {nav_topnav}
+                    <li class="topnav__item"><a class="topnav__link" href="{link_url}" {if link_url ^= 'http'}target="_blank"{/if}>{link_label}</a></li>
+                {/nav_topnav}
+                <li class="topnav__item item--location">
+                    <a class="topnav__link" href="/{if market_url != ''}{market_url}/{/if}regional-locations/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 298.6 413.1"><path d="M149.3 0C66.7 0 0 66.7 0 149.3c0 28.8 9.2 56.3 22 78.9l97.3 168.4c6.1 11 18.4 16.5 30 16.5s23.3-5.5 30-16.5l97.3-168.3c12.9-22.6 22-49.6 22-78.9C298.6 66.8 231.9 0 149.3 0Zm0 193.4c-30 0-54.5-24.5-54.5-54.5s24.5-54.5 54.5-54.5 54.5 24.5 54.5 54.5-24.5 54.5-54.5 54.5Z"/></svg>{market_name}</a>
+                </li>
+                <li class="topnav__item">
+                    <a class="topnav__link link--button" href="/{if market_url != ''}{market_url}/{/if}search/"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m493.49 404.11-86.96-86.96c16.43-30.82 25.14-65.4 25.14-101.31 0-57.65-22.45-111.85-63.22-152.62C327.68 22.45 273.48 0 215.83 0 96.82 0 0 96.82 0 215.83c0 57.65 22.45 111.85 63.22 152.62 40.77 40.77 94.96 63.22 152.62 63.22 35.92 0 70.49-8.72 101.31-25.14l86.97 86.97c11.94 11.94 27.81 18.51 44.69 18.51s32.75-6.57 44.69-18.51c11.94-11.94 18.51-27.81 18.51-44.69s-6.57-32.75-18.51-44.69Zm-277.66-68.84c-65.85 0-119.43-53.58-119.43-119.43 0-65.86 53.58-119.43 119.44-119.44 65.86 0 119.43 53.58 119.43 119.43s-53.58 119.43-119.43 119.43Z"/></svg></a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+<div class="container">
+    <div class="page-head__inner">
+        <div class="page-head__logo">
+            <a href="/{market_url}{if market_url != ''}/{/if}"><img src="{nav_logo_header}" alt="Adventist Health Logo"></a>
+        </div>
+        <div class="mobile-nav">
+            <div class="mobile-nav__inner">
+                <a class="mobile-nav__location" href="/{if market_url != ''}{market_url}/{/if}regional-locations/">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 298.6 413.1"><path d="M149.3 0C66.7 0 0 66.7 0 149.3c0 28.8 9.2 56.3 22 78.9l97.3 168.4c6.1 11 18.4 16.5 30 16.5s23.3-5.5 30-16.5l97.3-168.3c12.9-22.6 22-49.6 22-78.9C298.6 66.8 231.9 0 149.3 0Zm0 193.4c-30 0-54.5-24.5-54.5-54.5s24.5-54.5 54.5-54.5 54.5 24.5 54.5 54.5-24.5 54.5-54.5 54.5Z"/></svg>
+                </a>
+                <a class="mobile-nav__search" href="/{if market_url != ''}{market_url}/{/if}search/">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="m493.49 404.11-86.96-86.96c16.43-30.82 25.14-65.4 25.14-101.31 0-57.65-22.45-111.85-63.22-152.62C327.68 22.45 273.48 0 215.83 0 96.82 0 0 96.82 0 215.83c0 57.65 22.45 111.85 63.22 152.62 40.77 40.77 94.96 63.22 152.62 63.22 35.92 0 70.49-8.72 101.31-25.14l86.97 86.97c11.94 11.94 27.81 18.51 44.69 18.51s32.75-6.57 44.69-18.51c11.94-11.94 18.51-27.81 18.51-44.69s-6.57-32.75-18.51-44.69Zm-277.66-68.84c-65.85 0-119.43-53.58-119.43-119.43 0-65.86 53.58-119.43 119.44-119.44 65.86 0 119.43 53.58 119.43 119.43s-53.58 119.43-119.43 119.43Z"/></svg>
+                </a>
+                <button class="mobile-nav__icon js-mobile-icon js-mobile-open">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+        {nav-top}
+    </div>
+</div>
+{/exp:ah_utils:market_data}

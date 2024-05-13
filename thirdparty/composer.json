@@ -1,0 +1,8 @@
+{
+    "require": {
+        "sendgrid/sendgrid": "^8.0",
+        "phpoffice/phpspreadsheet": "^1.28",
+        "guzzlehttp/guzzle": "^7.5",
+        "authorizenet/authorizenet": "^2.0"
+    }
+}

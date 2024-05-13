@@ -1,0 +1,99 @@
+<?php
+/**
+ * BLOG: related articles
+ */
+
+// ------------------------------------------
+//  get market_name and cat_id
+// ------------------------------------------
+$market_name = '{embed:market_name}';
+$current_entry_id = '{embed:current_entry_id}';
+$aCategory_ids = unserialize('{embed:category_ids}'); // serilized cat ids
+$pCategory_ids = implode(' || ', $aCategory_ids);
+// echo $pCategory_ids;exit;
+
+if( isset($market_name) and $market_name == 'Adventist Health' ) {
+  $market_name = 'System';
+  $cat_id = 29;
+}
+else {
+  ee()->db->where('cat_name', $market_name);
+  ee()->db->where('group_id', 1);
+  $results = ee()->db->get("exp_categories");
+  foreach( $results->result() as $row) {  
+    $cat_id = $row->cat_id; // ie bakersfield
+  }
+}
+
+
+// ------------------------------------------
+//  get total entries and random offset
+// ------------------------------------------
+ee()->db->where('site_id', 1);
+ee()->db->where('channel_id', 1); // blog
+ee()->db->where('status', 'open');
+$totalEntries = ee()->db->count_all_results('exp_channel_titles');
+$randomOffset = rand(0, $totalEntries - 3);
+//  offset="<?=$randomOffset
+// echo $totalEntries;exit;
+
+
+// ------------------------------------------
+//  ALT: get entrie_ids and shuffle
+// ------------------------------------------
+$aEntryIds = [];
+ee()->db->where('site_id', 1);
+ee()->db->where('channel_id', 1); // blog
+ee()->db->where('status', 'open');
+$results = ee()->db->get("exp_channel_titles");
+foreach( $results->result() as $row) {  
+  $aEntryIds[] = $row->entry_id; // ie bakersfield
+}
+
+
+// echo $aEntryIds[1];exit;
+// echo count($aEntryIds);exit;
+
+
+// Initialize an array to hold each entry's output
+// $output = [];
+
+// // Start output buffering
+// ob_start();
+?>
+{exp:channel:entries 
+  category='{embed:category_id}'
+  exclude_entry_id="{embed:current_entry_id}&&<?=$cat_id?>"
+  orderby="random"
+  limit="3"
+  cache="no"
+  require_entry="no"
+  dynamic="no"
+}
+    <a href="{if segment_2 == 'blog'}/{segment_1}{/if}/blog/{news_year}/{news_month}/{url_title}/" class="card card--article">
+      <div class="card__image">
+        {if '{news_image}' != ''}
+        <img src="{news_image}" alt="CTA Image">
+        {if:else}
+        <img src="/files/core/logos/ah-global.svg" alt="Adventist Health Logo">
+        {/if}
+      </div>
+      <div class="card__content">
+        <span>{categories show_group="3" backspace="2"}{category_name}, {/categories}</span>
+        <h5>{news_headline} - FOUND {embed:current_entry_id}</h5>
+        <p>{news_publish_date format="%F %j, %Y"}</p>
+      </div>
+    </a>
+    <?php
+    // $output[] = ob_get_clean();
+    // ob_start();
+    ?>
+{/exp:channel:entries}
+<?php
+// shuffle($output);
+// if( is_array($output) ) {
+//   echo $output[1];exit;
+
+// }
+
+?>

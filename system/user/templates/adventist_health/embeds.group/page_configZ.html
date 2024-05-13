@@ -1,0 +1,26 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+/**
+ *	Get entry_id from nav for this market
+ */
+$this_market = '{embed:this_market}';
+
+$market = '{segment_1}';
+ee()->db->where('url_title', $this_market);
+ee()->db->where('channel_id', 14);
+$results = ee()->db->get("exp_channel_titles");
+if ( $results->num_rows() == 0 ) {
+  $this_market = 'system';
+  ee()->db->where('url_title', $this_market);
+  ee()->db->where('channel_id', 14);
+  $results = ee()->db->get("exp_channel_titles");
+}   
+foreach( $results->result() as $row) {  
+  $entry_id = $row->entry_id;
+}
+?>
+{embed="/embeds/page_config2/" 
+  this_entry_id = '<?=$entry_id?>'
+}

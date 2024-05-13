@@ -1,0 +1,15 @@
+<?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+/**
+ *  FROM JOT: capture reponse and send to main process
+ */
+
+$jot_response = serialize($_POST);
+$_SESSION['jot_response'] = $jot_response;
+
+header("Location: /scripts/event_process/");
+exit;
+?>
+

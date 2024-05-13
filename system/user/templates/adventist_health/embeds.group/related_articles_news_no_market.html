@@ -1,0 +1,62 @@
+<?php
+$market_name = '{embed:market_name}';
+if( isset($market_name) and $market_name == 'Adventist Health' ) {
+  $market_name = 'System';
+  $cat_id = 29;
+}
+else {
+  ee()->db->where('cat_name', $market_name);
+  ee()->db->where('group_id', 1);
+  $results = ee()->db->get("exp_categories");
+  foreach( $results->result() as $row) {  
+    $cat_id = $row->cat_id;
+  }
+}
+// echo $cat_id;exit;
+?>
+{exp:channel:entries 
+	channel="news" 
+  category='{embed:category_id}'
+	exclude_entry_id="{embed:current_entry_id}"
+	orderby="publish_date|random"
+  sort="desc|desc"
+	limit="3"
+  cache="no"
+  require_entry="no"
+  dynamic="no"
+}
+  {if no_results}
+No Results: all markets next
+
+  {/if}
+
+      <a href="{if segment_2 == 'news'}/{segment_1}{/if}/news/{news_year}/{news_month}/{url_title}/" class="card card--article">
+        <div class="card__image">
+          {if '{news_image}' != ''}
+          <img src="{news_image}" alt="CTA Image">
+          {if:else}
+          <img src="/files/core/logos/ah-global.svg" alt="Adventist Health Logo">
+          {/if}
+        </div>
+        <div class="card__content">
+          <span>{categories show_group="8" backspace="2"}{category_name}, {/categories}</span>
+          <h5>{news_headline}</h5>
+          <p>{news_publish_date format="%F %j, %Y"}</p>
+        </div>
+      </a>
+<?php
+
+// $buffer_related[$j] = ob_get_contents();
+// $j++;
+?>
+{/exp:channel:entries}
+<?php
+
+// ob_end_clean();
+// // echo count($buffer_related);exit;
+// // if (isset($buffer_related) && is_array($buffer_related)) {
+// //     shuffle($buffer_related);
+// //     $buffer_related = array_slice($buffer_related, 0, 3); // Limit to 3 entries
+// // }
+// echo implode("\n",$buffer_related);
+?>

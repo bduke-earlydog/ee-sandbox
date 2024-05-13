@@ -1,0 +1,91 @@
+<?php
+/**
+ *   BLOG detail
+ */
+?>{exp:channel:entries 
+  channel="blog"
+  require_entry="no"
+  url_title="{last_segment}"
+  limit="1"
+  dynamic="no"
+  status="open|hidden"
+}
+{if no_results}
+  {redirect="/blog"} 
+{/if}
+
+{__header}
+
+    
+    <section class="header header--detail lightest-blue">
+      <div class="container">
+        <div class="header__inner">
+          <div class="header__content">
+            <div class="header__button">
+              <a href="{if segment_2 == 'blog'}/{segment_1}{/if}/blog/" class="button button--icon button--outline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M182.62 9.38c12.51 12.51 12.49 32.76 0 45.25l-73.3 73.35h370.7c17.69 0 32 14.31 32 32s-14.31 32-32 32h-370.7l73.3 73.37c12.5 12.5 12.5 32.75 0 45.25s-32.75 12.5-45.25 0L9.38 182.6c-12.5-12.5-12.5-32.75 0-45.25l128-128c12.55-12.47 32.75-12.47 45.25.03Z"/></svg>Blog</a>
+            </div>
+            <div class="header__copy">
+              <h1>{news_headline}</h1>
+              <p>{news_publish_date format="%M %j, %Y"}</p>
+            </div>
+          </div>
+          <div class="header__image">
+            {if news_image != ''}
+            <img src="{news_image}" alt="Image">
+            {if:else}
+            <img src="/files/core/logos/ah-global.svg" alt="Adventist Health Logo">
+            {/if}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="copy">
+      <div class="container">
+        <div class="copy__inner">
+          {news_copy}
+        </div>
+      </div>
+    </section>
+
+    <section class="tags">
+      <div class="container">
+        <div class="tags__inner">
+          <?php $aCatIds = [];?>
+          <span class="tag-label">Tags:</span>
+          {categories show_group="3"}
+          <?php $aCatIds[] = '{category_id}';?>
+          <a href="{if segment_2 == 'blog'}/{segment_1}{/if}/blog/#{category_name:url_slug}" class="tag">{category_name}</a>
+          {/categories}
+        </div>
+      </div>
+    </section>
+
+<?php
+// ------------------------------------------
+//  RELATED ARTICLES
+//    uses /embeds/related_articles_blog
+// ------------------------------------------
+?>
+    <section class="cards lightest-blue">
+      <div class="container">
+        <div class="cards__header">
+          <h3>Related articles</h3>
+        </div>
+        <div class="cards__inner">
+          <!-- a:2:{i:0;s:2:"99";i:1;s:3:"104";} -->
+          {categories show_group="3" limit="1"}
+              {embed="/embeds/related_articles_blog" 
+                category_id="{category_id}" 
+                current_entry_id="{entry_id}"
+                market_name="<?=$market_name ?>"
+                category_ids = '<?php echo serialize($aCatIds);?>';
+              }     
+          {/categories}
+        </div>
+      </div>
+    </section>
+
+{_footer}
+{/exp:channel:entries}
+

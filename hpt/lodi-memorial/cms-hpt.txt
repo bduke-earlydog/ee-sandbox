@@ -1,0 +1,5 @@
+location-name: Adventist Health Lodi Memorial
+source-page-url: https://adventisthealth.org/lodi-memorial
+mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Lodi_Memorial_V3.aspx
+contact-name: Blackwell, Sheila
+contact-email: BlackwS@ah.org

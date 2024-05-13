@@ -1,0 +1,184 @@
+{exp:channel:entries 
+  channel="locations"
+  require_entry="no"
+  dynamic="no"
+  limit="1"
+}
+{__header}
+{/exp:channel:entries}
+
+
+    <section class="header header--bg bg--pattern dark-blue">
+      <div class="container">
+        <div class="header__inner">
+          <div class="header__content">
+            <div class="header__copy">
+              <h1>Locations</h1>
+              <p>Nearby health services, providers to serve our community</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+<?php
+// ------------------------------------------
+//  Filters
+// ------------------------------------------
+?>
+
+
+    <style>
+      [v-cloak] {
+        opacity: 0;
+      }
+      .slide-fade-enter-active {
+        transition: all 1s ease;
+      }
+      .slide-fade-enter {
+        transition: all 1s ease;
+      }
+      .slide-fade-leave-active {
+        transition: all 1s ease;
+      }
+      .slide-fade-leave-to, .slide-fade-enter-from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+    </style>
+
+
+    <div id="app">
+
+      <section class="search search--locations lightest-blue">
+        <div class="container">
+          <div class="search__inner">
+            <div class="control control--zip">          
+              <label class="control__label">Zip Code</label>
+              <input class="control__input" id="zip_search" pattern="[0-9]{5}" type="search" placeholder="Enter your 5 digit zip code..." ref="zip_search" @keyup.enter="submitSearch" required>
+            </div>
+            <div class="control control--miles">
+              <label class="control__label">Within</label>
+              <div class="control__select">
+                <select name="miles" ref="zip_radius">
+                  <option value="5">5 Miles</option>
+                  <option value="10">10 Miles</option>
+                  <option selected="selected" value="25">25 Miles</option>
+                  <option value="50">50 Miles</option>
+                  <option value="100">100 Miles</option>
+                </select>
+              </div>  
+            </div>
+            <div class="control control--button">
+              <input class="button" id="zip_seach_button" type="button" value="Search" @click="submitSearch">
+            </div>
+            <div class="control control--location">
+              <label class="control__label">Location Type</label>
+              <div class="control__select">
+                <select name="category" id="category" @change="onChangeCat">
+                  <option selected="selected" value="all">All Types</option>
+                  {exp:channel:categories category_group="12" style="linear" sort=“asc” }
+                  {if category_name != 'Delete'}
+                  <option value="{category_id}|{category_name}">{category_name}</option>
+                  {/if}
+                  {/exp:channel:categories}           
+                </select>
+              </div>  
+            </div>
+          </div>
+          <div class="search__filter">
+            <div class="control control--clear">
+              <input @click="clearAll" class="text-link" type="button" value="Clear Filters">
+            </div>
+            <div class="tags">
+              <div class="tags__inner">
+                <div v-cloak v-if="headline_zip != ''" class="tag" @click="clearFilter('search')">{{headline_zip}} / {{headline_radius}} Miles<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 365.696 365.696"><path d="M243.188 182.859L356.32 69.727c12.5-12.5 12.5-32.766 0-45.246L341.238 9.398c-12.504-12.504-32.77-12.504-45.25 0L182.859 122.527 69.727 9.375c-12.5-12.5-32.766-12.5-45.246 0L9.375 24.457c-12.5 12.504-12.5 32.77 0 45.25l113.152 113.152L9.398 295.988c-12.504 12.504-12.504 32.77 0 45.25L24.48 356.32c12.5 12.5 32.766 12.5 45.246 0l113.133-113.133L295.988 356.32c12.504 12.5 32.77 12.5 45.25 0l15.082-15.082c12.5-12.504 12.5-32.77 0-45.25zm0 0"/></svg></div>
+                <div v-cloak v-if="headline_catname != 'all'" class="tag" @click="clearFilter('cat')">{{headline_catname}}<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 365.696 365.696"><path d="M243.188 182.859L356.32 69.727c12.5-12.5 12.5-32.766 0-45.246L341.238 9.398c-12.504-12.504-32.77-12.504-45.25 0L182.859 122.527 69.727 9.375c-12.5-12.5-32.766-12.5-45.246 0L9.375 24.457c-12.5 12.504-12.5 32.77 0 45.25l113.152 113.152L9.398 295.988c-12.504 12.504-12.504 32.77 0 45.25L24.48 356.32c12.5 12.5 32.766 12.5 45.246 0l113.133-113.133L295.988 356.32c12.504 12.5 32.77 12.5 45.25 0l15.082-15.082c12.5-12.504 12.5-32.77 0-45.25zm0 0"/></svg></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DO NOT REMOVE -->
+        <select name="market" id="market" style="display:none" >
+          <option selected="selected" value="">Select</option>
+          {exp:channel:categories category_group="1" style="linear" sort="asc"}
+          <option value="{category_id}|{category_name}" {if segment_1 == category_url_title}selected{/if}>{category_name}</option>
+          {/exp:channel:categories}  
+        </select>
+        <!-- DO NOT REMOVE -->
+
+      </section>
+
+
+<?php
+// ------------------------------------------
+//  CARDS
+// ------------------------------------------
+if( $market != 'system') $d_market_name = $market_name;
+else $d_market_name = '';
+?>
+
+
+    <section class="cards cards--locations cards--grid" v-cloak>
+      <div class="container">
+
+      <?php if (!empty($d_market_name)): ?>
+      	<transition name="fade">
+          <div class="results__header" id="location_results"  v-if="headline_zip == ''">
+            <h3>Showing locations for <span><?=$d_market_name?></span>.</h3>
+          </div> 
+        </transition>
+        <?php endif; ?>
+
+        <transition name="fade">
+          <div class="results__header" style="display: none;" id="no_results">
+            <?php 
+            if ( ! empty($d_market_name)) {
+              ?>
+              <h3>No results were found.</h3>
+              <?php
+            }
+            else {
+              ?>
+              <h3>Please enter your zip code to find nearby Adventist Health locations.</h3>
+              <?php
+            }
+            ?>
+          </div> 
+        </transition>
+
+        <transition-group name="slide-fade" tag="div" class="cards__inner" v-cloak appear>
+          <a :href="result.link" class="card card--location" v-if="results.length !== 0" v-for="(result, index) in results" :key="result.index">
+            <div class="card__image">
+              <img :src="result.image || '/files/core/placeholders/blog-news.jpg'" alt="Location Image">
+            </div>
+            <div v-if="result.distance" class="card__distance">
+              <p>{{result.distance}} Miles</p>
+            </div>
+            <div class="card__content">
+              <div class="card__icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 381.87 509.87"><path d="M192 0C85.33 0 0 85.33 0 192c0 98.13 157.87 290.13 174.93 311.47 8.53 8.53 23.47 8.53 32 0C224 482.14 381.86 290.14 381.86 192 381.87 87.47 296.53 2.13 192 0Zm0 298.67c-59.73 0-106.67-46.93-106.67-106.67S132.26 85.33 192 85.33 298.67 132.26 298.67 192 251.74 298.67 192 298.67Z"/><path d="M213.33 170.67V128h-42.66v42.67H128v42.66h42.67V256h42.66v-42.67H256v-42.66h-42.67z"/></svg>
+              </div>
+              <span v-html="result.tag"></span>
+              <h5 v-html="result.title"></h5>
+              <p><strong v-html="result.street"></strong><strong v-html="result.suite"></strong><br><strong v-html="result.city"></strong>, {{result.state}} {{result.zipcode}}</p>
+            </div>
+          </a>
+        </transition-group>
+
+      </div>
+    </section>
+
+  </div>
+
+
+{exp:channel:entries 
+  channel="events"
+  require_entry="no"
+  limit="1"
+    dynamic="no"
+}
+{_footer}
+{/exp:channel:entries}

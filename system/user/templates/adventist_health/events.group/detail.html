@@ -1,0 +1,315 @@
+  <?php
+  if (session_status() === PHP_SESSION_NONE) {
+      session_start();
+  }
+
+  ?>
+  {exp:channel:entries 
+    channel="events"
+    require_entry="no"
+    url_title="{if '{segment:edate}' != '' && '{segment_4}' != ''}{segment_3}{if:elseif '{segment:edate}' != '' && '{segment_3}' != ''}{segment_2}{if:elseif '{segment:edate}' == '' && '{segment_3}' != ''}{segment_3}{if:elseif '{segment:edate}' == '' && '{segment_2}' != ''}{segment_2}{/if}"
+    limit="1"
+    dynamic="no"
+  }
+  {__header}
+  <?php
+
+  $today = strtotime('today midnight');
+  $this_eid = '{segment:edate}';
+  unset($_SESSION['reg_form']);
+  unset($_SESSION['jot_response']);
+  $hash = '{last_segment}';
+  // get timestamp
+  $timestamp = 0;
+  $format = 'm-j-y';
+  if($hash) {
+    $dateTime = DateTime::createFromFormat($format, $hash); 
+    if ($dateTime) {
+        $timestamp = $dateTime->getTimestamp();
+    }
+  }
+
+
+  $menu_select = trim(date('m-j-y', $timestamp));
+  ?>
+   <section class="header header--detail lightest-blue">
+        <div class="container">
+          <div class="header__inner">
+            <div class="header__content">
+              <div class="header__button">
+                <a href="{if segment_1 != 'events'}/{segment_1}{/if}/events/" class="button button--icon button--outline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M182.62 9.38c12.51 12.51 12.49 32.76 0 45.25l-73.3 73.35h370.7c17.69 0 32 14.31 32 32s-14.31 32-32 32h-370.7l73.3 73.37c12.5 12.5 12.5 32.75 0 45.25s-32.75 12.5-45.25 0L9.38 182.6c-12.5-12.5-12.5-32.75 0-45.25l128-128c12.55-12.47 32.75-12.47 45.25.03Z"/></svg>Events</a>
+              </div>
+              <div class="header__copy">
+                <span class="header__eyebrow">{categories show_group="1" backspace="2"}{if category_name != 'System'}{category_name}, {if:else}Adventist Health{/if}{/categories}</span>
+                <h1>{events_title}</h1>
+                <p>{categories show_group="13" backspace="2"}{category_name}, {/categories}</p>
+              </div>
+            </div>
+            <div class="header__image">
+               {if '{events_image}' != ''}
+                <img src="{events_image}" alt="Event Image">
+                {if:else}
+                <img src="/files/core/placeholders/event.jpg" alt="Event Image">
+               {/if}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="page-content__wrap">
+        <?php
+        $thisEventTime = [];
+        ?>
+        {events_event_dates}
+        <?php
+        $thisEventTime['{events_event_dates:date}'] = "{events_event_dates:date format='%l, %F %j, %Y'}|{events_event_dates:event_time}";
+        ?>
+        {/events_event_dates}
+
+        <aside class="sidebar">
+          <div class="sidebar__inner">
+            <!-- std events -->
+            {if events_event_date != '' || events_cost != '' || '{events_dates}{events_dates:event_details_optional_text}{/events_dates}' != '' || 1==1}
+            <div class="sidebar__block block--info">
+              <div class="sidebar__header">
+                <h4>Event Details</h4>
+              </div>
+              <div class="sidebar__content">
+                 {if events_cost != ''}
+                <h5>Cost</h5>
+                <p>${events_cost}</p>
+                {/if}
+
+                <h5>Date</h5>
+                <?php
+                  if($this_eid) {
+                    $selectMenuOptons = array();
+                    ksort($thisEventTime); 
+                    foreach( $thisEventTime as $k=>$v) {
+                      $aTmp = explode('|', $v);
+                      $e_d = $aTmp[0];
+                      $e_t = $aTmp[1];
+                      $formattedDate = date('m-j-y', $k); 
+                      // echo $menu_select.' '.$formattedDate.'<br>';
+                      if($formattedDate == $menu_select and $k >= $today) {
+                        ?>
+                      <div class="content__date">
+                        <p><?=$e_d?></p>
+                        <p><?=$e_t?></p>
+                      </div>
+                        <?php
+                        break;
+                      }
+                    }
+                  }
+                  else {
+                    $selectMenuOptons = array();
+                    ksort($thisEventTime); 
+                    foreach( $thisEventTime as $k=>$v) {
+                      $aTmp = explode('|', $v);
+                      $e_d = $aTmp[0];
+                      $e_t = $aTmp[1];
+
+                      if($k)
+                      $formattedDate = date('m-j-y', $k); 
+                      // echo $menu_select.' '.$formattedDate.'<br>';
+                        if($k >= $today) {
+                        ?>
+                            <div class="content__date">
+                              <p><?=$e_d?></p>
+                              <p><?=$e_t?></p>
+                            </div>
+                        <?php
+                      }
+                    }
+
+                  }
+                ?>
+
+                {events_optional_multi_day_event}
+                  <p>{events_optional_multi_day_event:day format="%F %j, %Y"}<br>{events_optional_multi_day_event:time}</p>
+                {/events_optional_multi_day_event}
+                
+                {if '{events_dates}{events_dates:event_details_optional_text}{/events_dates}' != ''}
+                  <p>{events_dates}{events_dates:event_details_optional_text}{/events_dates}</p>
+                {/if}
+                
+              </div>
+            </div>
+            {/if}
+
+            <!-- location -->
+            {if events_optional_location == 1}
+            <div class="sidebar__block block--location">
+              <div class="sidebar__header">
+                <h4>Event Location</h4>
+              </div>
+              <div class="sidebar__content">
+                {events_location}
+                <h5>{events_location:venue}</h5>
+                <p>{events_location:address}{if events_location:address_2 != ''}<br>{events_location:address_2}{/if}<br>{events_location:city}, {events_location:state} {events_location:zip_code}</p>
+                {if events_location:directions_url != ''}
+                <a class="text-link" href="{events_location:directions_url}" target="_blank">Get directions<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M329.4 310.6c-12.51-12.51-12.49-32.76 0-45.25L402.7 192H32c-17.69 0-32-14.31-32-32s14.31-32 32-32h370.7l-73.3-73.37c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0l127.99 128c12.5 12.5 12.5 32.75 0 45.25l-128 128c-12.55 12.47-32.75 12.47-45.25-.03h.01Z"/></svg></a>
+                {/if}
+                {/events_location}
+              </div>
+            </div>
+            {/if}
+          </div>
+        </aside>
+
+        <div class="page-content__inner">
+
+          <section class="copy">
+            <div class="container">
+              <div class="copy__inner">
+               {events_description}
+              </div>
+            </div>
+          </section>
+
+          {if events_html_source != ''}
+          <section class="copy">
+            <div class="container">
+              <div class="copy__inner">
+               {events_html_source}
+              </div>
+            </div>
+          </section>
+          {/if}
+
+
+        {if events_event_registration == 1}
+          <section class="form">
+            <div class="container">
+              <div class="form__inner">
+
+                <div class="form__content copy">
+                  <h2>Event Registration</h2>
+                </div>
+                <div class="form__block">
+                  <form action="/scripts/event_process" method="post" name="frm_reg">
+
+<?php
+if(count($thisEventTime) > 0) {
+?>
+
+
+                    <div class="control">
+                      <label class="control__label">Event Date</label>
+                      <div class="control__select">
+
+                        <select name="main_event_day" required>
+                          <option value="">Select One</option>
+                          <?php
+                              $selectMenuOptons = array();
+                              ksort($thisEventTime); 
+                              foreach( $thisEventTime as $k=>$v) {
+                                $aTmp = explode('|', $v);
+                                $e_d = $aTmp[0];
+                                $e_t = $aTmp[1];
+                                if($k)
+                                $formattedDate = date('m-j-y', $k); 
+                                // echo $menu_select.' '.$formattedDate.'<br>';
+                                if($k >= $today) {
+                                  if($formattedDate == $menu_select) {
+                                    ?>
+                                  <option value="<?=$e_d?>|<?=$e_t?>"  selected="selected"><?=$e_d?>, <?=$e_t?></option>
+                                    <?php
+                                  }
+                                  else {
+                                    ?>
+                                  <option value="<?=$e_d?>|<?=$e_t?>"><?=$e_d?>, <?=$e_t?></option>
+                                    <?php
+                                  }
+                                 }
+                              }
+                          ?>
+
+  <!--                           {events_event_dates}  
+                            <option  value='{events_event_dates:date format="%F %j, %Y"}|{events_event_dates:event_time}'>{events_event_dates:date format='%l, %F %j, %Y'}  {events_event_dates:event_time}</option>
+                            {/events_event_dates}   -->
+
+
+                        </select>
+                      </div>
+                    </div>
+
+<?php
+}
+
+?>
+
+
+
+
+                    <div class="control">
+                      <label class="control__label">Full Name</label>
+                      <input class="control__input" type="text" name="full_name" value="" placeholder="Full Name" required>
+                    </div>
+                    <div class="control">
+                      <label class="control__label">Email</label>
+                      <input class="control__input" type="email" name="email" value="" placeholder="Email" required>
+                    </div>
+                    <div class="control">
+                      <label class="control__label">Phone</label>
+                      <input class="control__input" type="tel" name="phone" value="" placeholder="Phone" required>
+                    </div>
+                    <div class="control">
+                      <label class="control__label">Address</label>
+                      <input class="control__input" type="text" name="address" value="" placeholder="Address" required>
+                    </div>
+                    <div class="control">
+                      <label class="control__label">City</label>
+                      <input class="control__input" type="text" name="city" value="" placeholder="City" required>
+                    </div>
+                    <div class="control">
+                      <label class="control__label">State</label>
+                    {state-select-events}
+                    </div>
+                    <div class="control">
+                      <label class="control__label">Zip Code</label>
+                      <input class="control__input" type="text" name="zipcode" value="" placeholder="Zip Code" required>
+                    </div>
+                    <div class="control control--submit">
+                      <input type="submit" name="submit_registration" value="Register">
+                      <input type="hidden" name="page_title" value="{title:attr_safe}">
+                      <input type="hidden" name="market" value="{categories show_group='1' backspace='2'}{category_name}, {/categories}">
+                      <input type="hidden" name="event_title" value="{events_title}">
+                      <input type="hidden" name="entry_id" value="{entry_id}">
+                      <input type="hidden" name="location_toggle" value="{events_optional_location}">
+                      <input type="hidden" name="event_venue" value="{events_location}{events_location:venue}{/events_location}">
+                      <input type="hidden" name="event_address" value="{events_location}{events_location:address}{/events_location}">
+                      <input type="hidden" name="event_address2" value="{events_location}{events_location:address_2}{/events_location}">
+                      <input type="hidden" name="event_city" value="{events_location}{events_location:city}{/events_location}">
+                      <input type="hidden" name="event_state" value="{events_location}{events_location:state}{/events_location}">
+                      <input type="hidden" name="event_zipcode" value="{events_location}{events_location:zip_code}{/events_location}">
+                      <input type="hidden" name="event_directions_url" value="{events_location}{events_location:directions_url}{/events_location}">
+                      <input type="hidden" name="event_cost" value="{events_cost}">
+                      <input type="hidden" name="event_type" value="{events_type}">
+                      <input type="hidden" name="event_url" value="{events_url}">
+                      <input type="hidden" name="event_payment" value="{if events_payment_form_embed != ''}yes{if:else}no{/if}">
+                      <input type="hidden" name="event_capacity" value="{events_location}{events_location:capacity}{/events_location}">
+                      <input type="hidden" name="event_day" value="{events_optional_multi_day_event}{events_optional_multi_day_event:day format="%F %d, %Y"}{/events_optional_multi_day_event}">
+                      <input type="hidden" name="event_time" value="{events_optional_multi_day_event}{events_optional_multi_day_event:time}{/events_optional_multi_day_event}">
+                      <input type="hidden" name="event_details_optional_text" value="{events_dates}{events_dates:event_details_optional_text}{/events_dates}">
+                      <input type="hidden" name="event_email_headline" value="{events_registration_email}{events_registration_email:headline:attr_safe}{/events_registration_email}">
+                      <input type="hidden" name="event_email_copy" value="{events_registration_email}{events_registration_email:copy_optional:attr_safe}{/events_registration_email}">
+                      <input type="hidden" name="event_email" value="{events_event_registration}" />
+                      <input type="hidden" name="events_event_admins" value="{events_event_admins}">
+                      <input type="hidden" name="events_url" value="{site_url}{current_path}">
+                      <input type="hidden" name="csrf_token" value="{csrf_token}">
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </section>
+        {/if}
+        </div>
+
+      </div>
+
+    {_footer}
+  {/exp:channel:entries}
+

@@ -1,0 +1,82 @@
+{exp:channel:entries 
+  channel="blog"
+  require_entry="no"
+  search:url_title="{segment_3}"
+  limit="1"
+}
+
+{if no_results}
+  {redirect="404"}
+{/if}
+{__header}
+
+    <section class="header header--blog header--bg lightest-blue">
+      <div class="container">
+        <div class="header__inner">
+          <div class="header__content">
+            <div class="header__button">
+              <a href="/blog/" class="button button--icon button--outline"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512.02 319.97"><path d="M182.62 9.38c12.51 12.51 12.49 32.76 0 45.25l-73.3 73.35h370.7c17.69 0 32 14.31 32 32s-14.31 32-32 32h-370.7l73.3 73.37c12.5 12.5 12.5 32.75 0 45.25s-32.75 12.5-45.25 0L9.38 182.6c-12.5-12.5-12.5-32.75 0-45.25l128-128c12.55-12.47 32.75-12.47 45.25.03Z"/></svg>Back to blog</a>
+            </div>
+            <div class="header__copy">
+              [<a href="{test__adventist_url_remove}" target="_blank">Original Link</a>]<br />
+              <h1>{news_headline}</h1>
+              <p>{news_publish_date}</p>
+            </div>
+          </div>
+          <div class="header__image">
+            <img src="img/blog/group-of-women-posing-for-camera.jpg" alt="Banner Image">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="copy">
+      <div class="container">
+        <div class="copy__inner">
+          {news_copy}
+        </div>
+      </div>
+    </section>
+
+
+    <section class="cta cta--related lightest-blue">
+      <div class="container">
+        <div class="cta__header">
+          <h3>Related articles</h3>
+          <a href="#" class="button button--outline">View all</a>
+        </div>
+        <div class="cta__inner">
+          <a href="#" class="cta__block block--article">
+            <div class="cta__image">
+              <img src="img/blog/early-detection-prostate-cancer.jpg" alt="CTA Image">
+            </div>
+            <div class="cta__content">
+              <h5>Prostate Cancer: Early Detection Is Key to a Possible Cure</h5>
+              <p>August 3, 2023</p>
+            </div>
+          </a>
+          <a href="#" class="cta__block block--article">
+            <div class="cta__image">
+              <img src="img/blog/blood-pressure-numbers-web.jpg" alt="CTA Image">
+            </div>
+            <div class="cta__content">
+              <h5>Give Your Immune System a Boost!</h5>
+              <p>August 15, 2023</p>
+            </div>
+          </a>
+          <a href="#" class="cta__block block--article">
+            <div class="cta__image">
+              <img src="img/blog/immune-system-boost.jpg" alt="CTA Image">
+            </div>
+            <div class="cta__content">
+              <h5>Blood Pressure: What Do the Numbers Mean and Why Do They Matter?</h5>
+              <p>April 3, 2023</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+{_footer}
+{/exp:channel:entries}
+

@@ -1,0 +1,116 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The AIS Cancer Center | Clinical Trials</title>
+  <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-grid.css" />
+  <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/styles/ag-theme-material.css" />
+  <style>
+    body {
+      font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    }
+
+    a {
+      text-decoration: none;
+      color: black
+    }
+
+    button {
+      background-color: hsla(207, 55%, 42%, 1);
+      color: white;
+      border-width: 1px;
+      border-style: solid;
+      border-radius: 5px;
+      padding: 5px;
+      margin: 10px;
+    }
+
+    button:hover {
+      background-color: hsla(207, 55%, 62%, 1);
+      border-color: white;
+    }
+
+    h1 {
+      color: hsla(207, 55%, 42%, 1);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .button {
+      display: flex;
+      flex-direction: row;
+      justify-content: end; 
+    }
+
+  </style>
+</head>
+
+<body>
+  <h1>The AIS Cancer Center | Clinical Trials</h1>
+
+  <div class="button">
+    <button onclick="resetFilters()">Reset Filters</button>
+  </div>
+
+  <div id="dataframe" class="ag-theme-material" style="height: 700px;"></div>
+
+  <script type="text/javascript">
+    // onclick button function to reset filters
+    const resetFilters = () => gridOptions.api.setFilterModel(null)
+
+    // Set columns size when first loaded
+    const onFirstDataRendered = (params) => params.api.sizeColumnsToFit();
+
+    // render helpers
+    const gridDiv = document.getElementById("dataframe");
+    const renderLink = (params) => params.value;
+
+    // Set Grid options in this block
+    const gridOptions = {
+
+      columnDefs: [
+        { field: "Title", minWidth: 500, wrapText: true, autoHeight: true, cellRenderer: renderLink },
+        { field: "Disease Type", wrapText: true, autoHeight: true },
+        { field: "Protocol Status" },
+        { field: "Phase", filter: 'agTextColumnFilter', filterParams: { defaultOption: 'equals'} },
+        { field: "Trial Type" },
+      ],
+
+      defaultColDef: {
+        filterParams: {
+          buttons: ['apply'],
+          closeOnApply: true,
+        },
+        resizable: true,
+        sortable: true,
+        filter: true,
+        floatingFilter: true,
+      },
+
+      onFirstDataRendered: onFirstDataRendered,
+      animateRows: true,
+      pagination: true,
+    };
+
+    // Write grid to DOM
+    new agGrid.Grid(gridDiv, gridOptions);
+
+    // Call data API
+    fetch('https://raw.githubusercontent.com/bbennett80/ClinicalTrials/main/update/clinical_trials.json')
+      .then(response => response.json())
+      .then(data => {
+        gridOptions.api.setRowData(data);
+      });
+  </script>
+
+  <div class="ag-theme-material">
+    <p>Active* = currently available at AIS Cancer Center.</p>
+  </div>
+</body>
+
+</html>

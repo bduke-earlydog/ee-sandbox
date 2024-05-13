@@ -1,0 +1,5 @@
+location-name: Adventist Health Delano
+source-page-url: https://adventisthealth.org/delano
+mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Delano_V3.aspx
+contact-name: Blackwell, Sheila
+contact-email: BlackwS@ah.org

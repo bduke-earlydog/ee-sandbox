@@ -1,0 +1,16 @@
+<?php
+/**
+ *  E - KEY
+ */
+
+// ------------------------------------------
+//  Get key as a php global _env
+// ------------------------------------------
+require $_SERVER['DOCUMENT_ROOT'].'/thirdparty/vendor/autoload.php';
+$dotenv = Dotenv\Dotenv::createImmutable('/srv/users/jwgmuiglwudppeu/apps/ah-staging2');
+$dotenv->load();
+$key = $_ENV['EKEY'];
+
+//	eof
+
+?>

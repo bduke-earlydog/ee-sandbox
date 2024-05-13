@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Translate</title>
+  <meta name="description" content="description">
+  <meta name="keywords" content="keywords">
+
+  <!-- Google Translate CSS -->
+  <style>
+    body > .skiptranslate { display: none; }
+    .goog-te-gadget-icon, .goog-logo-link { display: none !important; }
+    .goog-te-gadget { color: transparent !important; }
+    .goog-te-banner-frame.skiptranslate { display: none !important; }
+    body { top: 0 !important; }
+
+    #google_translate_element { color: transparent; margin-right: 10px; }
+    #google_translate_element a { display: none; }
+    #google_translate_element select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+
+    .goog-te-gadget {
+      position: relative;
+      cursor: pointer;
+    }
+
+    .goog-te-combo {
+      height: 33px;
+      width: 150px;
+      font-family: 'Proxima Nova W05 Semibold', Arial, sans-serif;
+      font-size: 14px;
+      color: #919191;
+      padding: 0 30px 1px 12px;
+      border: none;
+      margin-top: 4px;
+      cursor: pointer;
+    }
+
+    .goog-te-gadget::after {
+      content: '';
+      position: absolute;
+      top: 15px;
+      right: 12px;
+      width: 6px;
+      height: 6px;
+      border: solid #919191;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+      pointer-events: none;
+    }
+
+    .goog-te-gadget:hover::after { border-color: #0093d6; }
+    .goog-te-gadget:hover .goog-te-combo { color: #0093d6; }
+
+    @media screen and (max-width: 820px) {
+      #google_translate_element .goog-te-gadget .goog-te-combo { margin-top: -2px; }
+      #google_translate_element .goog-te-gadget::after { top: 9px; }
+    }
+
+    @media screen and (max-width: 550px) {
+      #google_translate_element .goog-te-gadget .goog-te-combo {
+        height: 30px;
+        width: 120px;
+        font-size: 12px;
+        padding: 0 20px 1px 8px;
+      }
+      #google_translate_element .goog-te-gadget::after {
+        width: 5px;
+        height: 5px;
+        right: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Google Translate Element -->
+  <div id="google_translate_element"></div>
+
+  <!-- Main Content -->
+  <div id="copy">
+    <p>Python is a high-level, interpreted, interactive and object-oriented scripting language. Python is designed to be highly readable. It uses English keywords frequently whereas other languages use punctuation, and it has fewer syntactical constructions than other languages.</p>
+  </div>
+
+  <div id="post1"></div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      setTimeout(function() {
+        fetch('/google_places/lang_conent/')
+        .then(response => response.text()) 
+        .then(html => {
+          document.getElementById("post1").innerHTML = html;
+        })
+        .catch(error => console.error('Error loading the file:', error));
+      }, 3000);
+    }, { once: true });
+  </script>
+
+  <script>
+    function googleTranslateElementInit() {
+      new google.translate.TranslateElement({pageLanguage: 'en'}, 'google_translate_element');
+      observeLanguageDropdown();
+    }
+
+    function filterLanguages(select) {
+      Array.from(select.children).forEach(function(option) {
+        if (option.value && !['en', 'es', 'fr'].includes(option.value)) {
+          select.removeChild(option);
+        }
+      });
+    }
+
+    function observeLanguageDropdown() {
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.type === 'childList') {
+            var select = document.querySelector(".goog-te-combo");
+            if (select) { filterLanguages(select); }
+          }
+        });
+      });
+
+      var target = document.querySelector(".goog-te-combo");
+      if (target) {
+        observer.observe(target, { childList: true });
+      }
+    }
+  </script>
+
+  <script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+</body>
+</html>
