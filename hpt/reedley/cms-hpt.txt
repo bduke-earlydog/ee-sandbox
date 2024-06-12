@@ -1,5 +1,0 @@
-location-name: Adventist Health Reedley
-source-page-url: https://adventisthealth.org/reedley
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Reedley_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org

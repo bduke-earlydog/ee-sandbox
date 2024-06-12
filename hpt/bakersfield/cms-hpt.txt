@@ -1,5 +1,0 @@
-location-name: Adventist Health Bakersfield
-source-page-url: https://adventisthealth.org/bakersfield
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Bakersfield_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org

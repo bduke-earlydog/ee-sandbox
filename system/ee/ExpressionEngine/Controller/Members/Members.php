@@ -907,19 +907,17 @@ class Members extends CP_Controller
         ]];
 
         foreach (ee('Model')->make('Member')->getDisplay()->getFields() as $field) {
-            if ($field->get('m_field_reg') == 'y' or $field->isRequired()) {
-                $sections['custom_fields'][] = [
-                    'title' => $field->getLabel(),
-                    'desc' => '',
-                    'fields' => [
-                        $field->getName() => [
-                            'type' => 'html',
-                            'content' => $field->getForm(),
-                            'required' => $field->isRequired(),
-                        ]
+            $sections['custom_fields'][] = [
+                'title' => $field->getLabel(),
+                'desc' => '',
+                'fields' => [
+                    $field->getName() => [
+                        'type' => 'html',
+                        'content' => $field->getForm(),
+                        'required' => $field->isRequired(),
                     ]
-                ];
-            }
+                ]
+            ];
         }
 
         $html = '';
@@ -1248,12 +1246,13 @@ class Members extends CP_Controller
 
         $vars['bulk_options'] = [];
         if (!empty($primaryRole) && $primaryRole->role_id == Member::PENDING) {
-            if (ee('Permission')->can('edit_members')) {
-                $vars['bulk_options'][] = [
-                    'value' => "approve",
-                    'text' => lang('approve')
-                ];
-            }
+            // Removing for now - confirmation modals (like decline/delete) do not currently play well with other options
+            // if (ee('Permission')->can('edit_members')) {
+            //     $vars['bulk_options'][] = [
+            //         'value' => "approve",
+            //         'text' => lang('approve')
+            //     ];
+            // }
             if (ee('Permission')->can('delete_members')) {
                 $vars['bulk_options'][] = [
                     'value' => "decline",

@@ -1,9 +1,0 @@
-/.idea
-/site
-system/user/config/config.php
-/documents
-/files
-/images
-.DS_Store
-system/user/addons/eedt*
-themes/user/eedt*

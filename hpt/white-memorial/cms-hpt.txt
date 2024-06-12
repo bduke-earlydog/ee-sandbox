@@ -1,5 +1,0 @@
-location-name: Adventist Health White Memorial
-source-page-url: https://adventisthealth.org/white-memorial
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_White_Memorial_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org

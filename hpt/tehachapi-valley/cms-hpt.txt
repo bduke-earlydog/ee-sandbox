@@ -1,5 +1,0 @@
-location-name: Adventist Health Tehachapi Valley
-source-page-url: https://adventisthealth.org/tehachapi-valley
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Tehachapi_Valley_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org

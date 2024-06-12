@@ -1,5 +1,0 @@
-location-name: Adventist Health Simi Valley
-source-page-url: https://adventisthealth.org/simi-valley
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Simi_Valley_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org

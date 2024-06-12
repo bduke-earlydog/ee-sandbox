@@ -1,5 +1,0 @@
-location-name: Adventist Health St. Helena
-source-page-url: https://adventisthealth.org/st-helena
-mrf-url: https://apps.para-hcfs.com/PTT/FinalLinks/Adventist_Saint_Helena_V3.aspx
-contact-name: Blackwell, Sheila
-contact-email: BlackwS@ah.org
